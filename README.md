@@ -66,3 +66,16 @@ hex configuration in `rebar.config` :
     {doc, #{provider => ex_doc}}
 ]}.
 ```
+
+# Development
+
+If you'd like to hack on this plugin follow the steps below : 
+
+1. You must have at least Elixir 1.13.0 installed to build the ex_doc escript
+2. Make a new rebar project or go into an existing project
+3. Make a `_checkouts` dir 
+4. cd `_checkouts` and clone this repository 
+5. Run `mix escript.build` 
+6. cd back to the root of your project 
+7. Add `rebar3_ex_doc` as plugin to your rebar.config 
+8. Run `rebar3 ex_doc` as an initial test
