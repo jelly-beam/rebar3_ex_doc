@@ -49,19 +49,8 @@ init(State) ->
 -spec do(rebar_state:t()) ->
     {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
 do(State) ->
-    case rebar_state:current_app(State) of
-        undefined ->
-            {Opts, _Args} = rebar_state:command_parsed_args(State),
-            case proplists:get_value(app, Opts, undefined) of
-                undefined ->
-                    run(State, rebar_state:project_apps(State));
-                AppName ->
-                    App = find_app(rebar_state:project_apps(State), AppName),
-                    run(State, App)
-            end;
-        AppInfo ->
-            run(State, AppInfo)
-    end.
+    Apps = get_apps(State),
+    run(State, Apps).
 
 -spec format_error(any()) -> iolist().
 format_error({app_not_found, AppName}) ->
@@ -75,7 +64,7 @@ format_error({compile, Err}) ->
 format_error({write_config, Err}) ->
     rebar_api:debug("Unknown error error occurred generating docs config: ~p", [Err]),
     "An unknown error occured generating docs config. Run with DIAGNOSTICS=1 for more details.";
-format_error({ex_doc, _}) -> 
+format_error({ex_doc, _}) ->
     "";
 format_error(Err) ->
     rebar_api:debug("An unknown error occured: ~p", [Err]),
@@ -84,6 +73,22 @@ format_error(Err) ->
 %% ===================================================================
 %% Private
 %% ===================================================================
+
+-spec get_apps(rebar_state:t()) -> [rebar_app_info:t()].
+get_apps(State) ->
+    case rebar_state:current_app(State) of
+        undefined ->
+            {Opts, _Args} = rebar_state:command_parsed_args(State),
+            case proplists:get_value(app, Opts, undefined) of
+                undefined ->
+                    rebar_state:project_apps(State);
+                AppName ->
+                    App = find_app(rebar_state:project_apps(State), AppName),
+                    [App]
+            end;
+        AppInfo ->
+            [AppInfo]
+    end.
 
 -spec find_app(rebar_app_info:t(), string()) -> rebar_app_info:t().
 find_app(Apps, Name) ->
@@ -98,22 +103,14 @@ find_app(Apps, Name) ->
     end.
 
 -spec run(rebar_state:t(), [rebar_app_info:t()] | rebar_app_info:t()) -> {ok, rebar_state:t()}.
-run(State, [_ | _] = Apps) ->
+run(State, Apps) ->
     OutDir = rebar_dir:base_dir(State),
     rebar_file_utils:rm_rf(OutDir),
     State1 = compile(State),
     EdocOutDir = filename:join([OutDir, "doc"]),
     State2 = gen_chunks(State1, EdocOutDir),
     lists:foreach(fun(App) -> ex_doc(State2, App, EdocOutDir) end, Apps),
-    {ok, State};
-
-run(State, App) ->
-    OutDir = rebar_app_info:out_dir(App),
-    rebar_file_utils:rm_rf(OutDir),
-    State1 = compile(State),
-    EdocOutDir = filename:join([OutDir, "doc"]),
-    State2 = gen_chunks(State1, EdocOutDir),
-    ex_doc(State2, App, EdocOutDir).
+    {ok, State}.
 
 -spec compile(rebar_state:t()) -> rebar_state:t().
 compile(State) ->
