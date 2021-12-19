@@ -1,0 +1,29 @@
+---
+name: test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  test:
+    name: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        elixir: ['1.11', '1.12', '1.13']
+        otp: ['22', '23', '24']
+        rebar3: ['3.16.1']
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{matrix.elixir}}
+          otp-version: ${{matrix.otp}}
+          rebar3-version: ${{matrix.rebar3}}
+      - name: Static analysis
+        run: rebar3 dialyzer
+      - name: Common Tests
+        run: rebar3 ct
