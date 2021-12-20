@@ -1,5 +1,7 @@
 # rebar3_ex_doc
 
+[![Build Status](https://github.com/starbelly/rebar3_ex_doc/actions/workflows/ci.yml/badge.svg)](https://github.com/starbelly/rebar3_ex_doc/actions/workflows/ci.yml) [![Erlang Versions](https://img.shields.io/badge/Supported%20Erlang%2FOTP-23.0%20to%2024.0-blue)](http://www.erlang.org)
+
 rebar3_ex_doc is a rebar3 plugin to generate documentation using [ex_doc](https://github.com/elixir-lang/ex_doc). This
 plugin ships with ex_doc as an escript, thus you don't need to worry about having Elixir installed nor compiling
 the ex_doc dependencies.
@@ -7,6 +9,9 @@ the ex_doc dependencies.
 This plugin can be used to generate documentation on its own and also integrates with [rebar3_hex](https://github.com/erlef/rebar3_hex) for publishing documentation to go along with your packages on [hex.pm](https://hex.pm/).
 
 ## Installation
+
+**NOTE**: This plugin and more importantly `ex_doc` depend on edocs capability to generate beam chunks per [eep-48](https://www.erlang.org/doc/apps/erl_docgen/doc_storage.html)
+Thus, the minimum OTP version supported by this plugin is Erlang/OTP 23. 
 
 ### As a global plugin
 
