@@ -104,12 +104,14 @@ find_app(Apps, Name) ->
 
 -spec run(rebar_state:t(), [rebar_app_info:t()] | rebar_app_info:t()) -> {ok, rebar_state:t()}.
 run(State, Apps) ->
-    OutDir = rebar_dir:base_dir(State),
-    rebar_file_utils:rm_rf(OutDir),
     State1 = compile(State),
-    EdocOutDir = filename:join([OutDir, "doc"]),
-    State2 = gen_chunks(State1, EdocOutDir),
-    lists:foreach(fun(App) -> ex_doc(State2, App, EdocOutDir) end, Apps),
+    lists:foreach(
+        fun(App) ->
+            {State2, EdocOutDir} = gen_chunks(State1, App),
+            ex_doc(State2, App, EdocOutDir)
+        end,
+        Apps
+    ),
     {ok, State}.
 
 -spec compile(rebar_state:t()) -> rebar_state:t().
@@ -122,19 +124,21 @@ compile(State) ->
             ?RAISE({compile, Err})
     end.
 
--spec gen_chunks(rebar_state:t(), file:filename()) -> rebar_state:t().
-gen_chunks(State, OutputDir) ->
+-spec gen_chunks(rebar_state:t(), file:filename()) -> {rebar_state:t(), file:filename()}.
+gen_chunks(State, App) ->
+    OutDir = filename:join(rebar_app_info:out_dir(App), "doc"),
     Prv = providers:get_provider(edoc, rebar_state:providers(State)),
     EdocOpts = [
         {preprocess, true},
         {doclet, edoc_doclet_chunks},
         {layout, edoc_layout_chunks},
-        {dir, OutputDir}
+        {dir, OutDir}
     ],
     State1 = rebar_state:set(State, edoc_opts, EdocOpts),
-    case providers:do(Prv, State1) of
-        {ok, State2} ->
-            State2;
+    State2 = rebar_state:project_apps(State1, [App]),
+    case providers:do(Prv, State2) of
+        {ok, State3} ->
+            {State3, OutDir};
         {error, Err} ->
             ?RAISE({gen_chunks, Err})
     end.
@@ -184,7 +188,6 @@ make_command_string(State, App, EdocOutDir, Opts) ->
         Optionals
     ),
     string:join(CommandArgs, " ").
-
 
 -spec ex_doc_config_file(rebar_app_info:t(), file:filename()) -> file:filename().
 ex_doc_config_file(App, EdocOutDir) ->
