@@ -1,6 +1,6 @@
 # rebar3_ex_doc
 
-[![Build Status](https://github.com/starbelly/rebar3_ex_doc/actions/workflows/ci.yml/badge.svg)](https://github.com/starbelly/rebar3_ex_doc/actions/workflows/ci.yml) [![Erlang Versions](https://img.shields.io/badge/Supported%20Erlang%2FOTP-23.0%20to%2024.0-blue)](http://www.erlang.org)
+[![Build Status](https://github.com/starbelly/rebar3_ex_doc/actions/workflows/ci.yml/badge.svg)](https://github.com/starbelly/rebar3_ex_doc/actions/workflows/ci.yml) [![Erlang Versions](https://img.shields.io/badge/Supported%20Erlang%2FOTP-23%20to%2024-blue)](http://www.erlang.org)
 
 rebar3_ex_doc is a rebar3 plugin to generate documentation using [ex_doc](https://github.com/elixir-lang/ex_doc). This
 plugin ships with ex_doc as an escript, thus you don't need to worry about having Elixir installed nor compiling
