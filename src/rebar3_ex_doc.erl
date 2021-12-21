@@ -50,8 +50,13 @@ init(State) ->
 -spec do(rebar_state:t()) ->
     {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
 do(State) ->
-    Apps = get_apps(State),
-    run(State, Apps).
+    case list_to_integer(erlang:system_info(otp_release)) of 
+        Min when Min >= 24 -> 
+            Apps = get_apps(State),
+            run(State, Apps);
+        Ver -> 
+            ?RAISE({unsupported_otp, Ver})
+    end.
 
 -spec format_error(any()) -> iolist().
 format_error({app_not_found, AppName}) ->
@@ -65,6 +70,9 @@ format_error({compile, Err}) ->
 format_error({write_config, Err}) ->
     rebar_api:debug("Unknown error error occurred generating docs config: ~p", [Err]),
     "An unknown error occured generating docs config. Run with DIAGNOSTICS=1 for more details.";
+format_error({unsupported_otp, Ver}) -> 
+    Str = "You are using erlang/OTP '~ts', but this plugin requires at least erlang/OTP 24.",
+    io_lib:format(Str, [integer_to_list(Ver)]);
 format_error({ex_doc, _}) ->
     "";
 format_error(Err) ->
