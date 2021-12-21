@@ -16,7 +16,7 @@ init_per_suite(Config) ->
     {ok, Cwd} = file:get_cwd(),
     file:set_cwd("../../../.."),
     {ok, _} = rebar_utils:sh("mix do deps.get, escript.build", [
-        {use_stdout, true}, {return_on_error, true}
+        {return_on_error, true}
     ]),
     file:set_cwd(Cwd),
     Config.
@@ -38,15 +38,17 @@ generate_docs(Config) ->
             ]}
     },
     {State, App} = make_stub(StubConfig),
+
     ok = make_readme(App),
     ok = make_license(App),
-    {ok, _} = rebar3_ex_doc:do(State).
+    {ok, _} = rebar3_ex_doc:do(State),
+    check_docs(App).
 
 generate_docs_with_current_app_set(Config) ->
     StubConfig = #{
         app_src => #{version => "0.1.0"},
         dir => data_dir(Config),
-        name => "default_docs",
+        name => "current_app",
         config =>
             {ex_doc, [
                 {source_url, <<"https://github.com/eh/eh">>},
@@ -59,7 +61,8 @@ generate_docs_with_current_app_set(Config) ->
     State1 = rebar_state:current_app(State, App),
     ok = make_readme(App),
     ok = make_license(App),
-    {ok, _} = rebar3_ex_doc:do(State1).
+    {ok, _} = rebar3_ex_doc:do(State1),
+    check_docs(App).
 
 generate_docs_with_bad_config(Config) ->
     StubConfig = #{
@@ -100,8 +103,40 @@ format_errors(_) ->
     Err5 = "An unknown error has occured. Run with DIAGNOSTICS=1 for more details.",
     ?assertEqual(Err5, rebar3_ex_doc:format_error({eh, some_error})).
 
+check_docs(App) ->
+    AppDir = rebar_app_info:dir(App),
+    AppName = rebar_app_info:name(App),
+    AppNameStr = rebar_utils:to_list(AppName),
+    DocDir = filename:join(AppDir, "doc"),
+    {ok, IndexDoc} = file:read_file(filename:join(DocDir, "index.html")),
+    {ok, ModuleDoc} = file:read_file(filename:join(DocDir, AppNameStr ++ ".html")),
+    {ok, ReadMeDoc} = file:read_file(filename:join(DocDir, "readme.html")),
+    {ok, [_ | _]} = zip:unzip(filename:join(DocDir, AppNameStr ++ ".epub"), [{cwd, DocDir}]),
+    {ok, EpubReadMe} = file:read_file(filename:join(DocDir, "OEBPS/readme.xhtml")),
+    ?assertMatch({match, [AppName]}, re:run(IndexDoc, AppName, [{capture, [0], binary}])),
+    ?assertMatch(
+        {match, [<<"PLEASE READ ME">>]},
+        re:run(ReadMeDoc, "PLEASE READ ME", [{capture, [0], binary}])
+    ),
+    ?assertMatch(
+        {match, [<<"foo/0 does nothing">>]},
+        re:run(ModuleDoc, "foo/0 does nothing", [{capture, [0], binary}])
+    ),
+    ?assertMatch({match, [AppName]}, re:run(EpubReadMe, AppName, [{capture, [0], binary}])),
+    ?assertMatch(
+        {match, [<<"PLEASE READ ME">>]},
+        re:run(EpubReadMe, "PLEASE READ ME", [{capture, [0], binary}])
+    ).
+
+compile_src_file(App) ->
+    Dir = rebar_app_info:dir(App),
+    Name = rebar_app_info:name(App),
+    Erl = filename:join([Dir, "src", rebar_utils:to_list(Name) ++ ".erl"]),
+    Ebin = filename:join(Dir, rebar_app_info:ebin_dir(App)),
+    {ok, _, _} = compile:file(Erl, [debug_info, {outdir, Ebin}, return]).
+
 make_readme(App) ->
-    file:write_file(filename:join(rebar_app_info:dir(App), "README.md"), <<"# README">>).
+    file:write_file(filename:join(rebar_app_info:dir(App), "README.md"), <<"# PLEASE READ ME">>).
 
 make_license(App) ->
     file:write_file(filename:join(rebar_app_info:dir(App), "LICENSE"), <<"LICENSE">>).
@@ -109,14 +144,20 @@ make_license(App) ->
 make_stub(#{name := Name, dir := Dir} = StubConfig) ->
     AppDir = filename:join(Dir, [Name]),
     mkdir_p(AppDir),
+
     _SrcFile = write_src_file(AppDir, StubConfig),
     _AppSrcFile = write_app_src_file(AppDir, StubConfig),
     _ConfigFile = write_config_file(AppDir, StubConfig),
     State = init_state(AppDir, StubConfig),
     [App] = rebar_state:project_apps(State),
-    {ok, State1} = rebar_prv_edoc:init(State),
-    {ok, State2} = rebar_prv_compile:init(State1),
-    {State2, App}.
+    {ok, State0} = rebar_prv_app_discovery:init(State),
+    {ok, State1} = rebar_prv_app_discovery:do(State0),
+    {ok, State2} = rebar_prv_edoc:init(State1),
+    {ok, State3} = rebar_prv_compile:init(State2),
+    {ok, State4} = rebar_prv_compile:do(State3),
+    {ok, State5} = rebar3_ex_doc:init(State4),
+    compile_src_file(App),
+    {State5, App}.
 
 init_state(Dir, Config) ->
     State = rebar_state(Dir, Config),
@@ -124,7 +165,7 @@ init_state(Dir, Config) ->
     rebar_app_discover:do(State, LibDirs).
 
 write_src_file(Dir, #{name := Name}) ->
-    Erl = filename:join([Dir, "src/", Name ++ ".erl"]),
+    Erl = filename:join([Dir, "src", Name ++ ".erl"]),
     ok = filelib:ensure_dir(Erl),
     ok = ec_file:write(Erl, erl_src_file(Name)).
 
@@ -139,11 +180,11 @@ write_config_file(Dir, #{config := Config}) ->
     ok = ec_file:write_term(Filename, Config).
 
 get_app_metadata(Name, Vsn) ->
-    {application, erlang:list_to_atom(Name), [
+    {application, list_to_atom(Name), [
         {description, "An OTP application"},
         {vsn, Vsn},
         {registered, []},
-        {applications, []},
+        {applications, [kernel, stdlib]},
         {env, []},
         {modules, []},
         {licenses, ["Apache 2.0"]},
@@ -152,10 +193,18 @@ get_app_metadata(Name, Vsn) ->
 
 erl_src_file(Name) ->
     io_lib:format(
+        "%%%-------------------------------------------------------------------\n"
+        "%% @doc `~s' - a module\n"
+        "%% end\n"
+        "%%%-------------------------------------------------------------------\n"
         "-module('~s').\n"
-        "-export([main/0]).\n"
-        "main() -> ok.\n",
-        [filename:basename(Name, ".erl")]
+        "-export([foo/0]).\n"
+        "%%% @doc\n"
+        "%%% foo/0 does nothing\n"
+        "%%% @end\n"
+        "-spec foo() -> ok.\n"
+        "foo() -> ok.\n",
+        [Name, Name]
     ).
 
 mkdir_p(Path) ->
@@ -166,8 +215,7 @@ rebar_state(AppsDir, #{config := CustomConfig}) ->
     file:set_cwd(AppsDir),
     Config = [
         {dir, AppsDir},
-        {root_dir, AppsDir},
-        {base_dir, filename:join([AppsDir, "_build"])},
+        {current_profiles, [docs]},
         {command_parsed_args, []},
         {resources, []},
         {hex, [{doc, #{provider => ex_doc}}]}

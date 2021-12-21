@@ -179,7 +179,8 @@ make_command_string(State, App, EdocOutDir, Opts) ->
         "--config",
         ex_doc_config_file(App, EdocOutDir),
         "--output",
-        output_dir(App, Opts)
+        output_dir(App, Opts),
+        "--quiet"
     ],
     Optionals = [canonical, language, logo, formatter],
     CommandArgs = lists:foldl(
