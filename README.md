@@ -38,8 +38,7 @@ hex.pm :
 {ex_doc, [
      {source_url, <<"https://github.com/namespace/your_app">>},
      {extras, [<<"README.md">>, <<"LICENSE">>]},
-     {main, <<"readme">>},
-     {proglang, erlang}
+     {main, <<"readme">>}
 ]}.
 ```
 

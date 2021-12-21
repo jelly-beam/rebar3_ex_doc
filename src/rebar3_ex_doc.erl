@@ -202,10 +202,18 @@ make_command_string(State, App, EdocOutDir, Opts) ->
 
 -spec ex_doc_config_file(rebar_app_info:t(), file:filename()) -> file:filename().
 ex_doc_config_file(App, EdocOutDir) ->
-    ExDocOpts = rebar_app_info:get(App, ex_doc, []),
+    ExDocOpts = ex_doc_opts_defaults(rebar_app_info:get(App, ex_doc, [])),
     ExDocConfigFile = filename:join([EdocOutDir, "docs.config"]),
     ok = write_config(ExDocConfigFile, ExDocOpts),
     ExDocConfigFile.
+
+ex_doc_opts_defaults(Opts) -> 
+    case proplists:get_value(proglang, Opts, undefined) of 
+        undefined -> 
+            Opts ++ [{proglang, erlang}];
+        _ -> 
+            Opts
+    end.
 
 -spec maybe_add_opt(atom(), proplists:proplist()) -> list().
 maybe_add_opt(formatter, Opts) ->
