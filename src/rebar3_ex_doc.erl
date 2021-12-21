@@ -50,11 +50,11 @@ init(State) ->
 -spec do(rebar_state:t()) ->
     {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
 do(State) ->
-    case list_to_integer(erlang:system_info(otp_release)) of 
-        Min when Min >= 24 -> 
+    case list_to_integer(erlang:system_info(otp_release)) of
+        Min when Min >= 24 ->
             Apps = get_apps(State),
             run(State, Apps);
-        Ver -> 
+        Ver ->
             ?RAISE({unsupported_otp, Ver})
     end.
 
@@ -70,7 +70,7 @@ format_error({compile, Err}) ->
 format_error({write_config, Err}) ->
     rebar_api:debug("Unknown error error occurred generating docs config: ~p", [Err]),
     "An unknown error occured generating docs config. Run with DIAGNOSTICS=1 for more details.";
-format_error({unsupported_otp, Ver}) -> 
+format_error({unsupported_otp, Ver}) ->
     Str = "You are using erlang/OTP '~ts', but this plugin requires at least erlang/OTP 24.",
     io_lib:format(Str, [integer_to_list(Ver)]);
 format_error({ex_doc, _}) ->
@@ -116,8 +116,8 @@ run(State, Apps) ->
     State1 = compile(State),
     lists:foreach(
         fun(App) ->
-            {State2, EdocOutDir} = gen_chunks(State1, App),
-            ex_doc(State2, App, EdocOutDir)
+            {State2, App1, EdocOutDir} = gen_chunks(State1, App),
+            ex_doc(State2, App1, EdocOutDir)
         end,
         Apps
     ),
@@ -142,13 +142,17 @@ gen_chunks(State, App) ->
         {doclet, edoc_doclet_chunks},
         {layout, edoc_layout_chunks},
         {dir, OutDir},
-        private, hidden
+        private,
+        hidden
     ],
     State1 = rebar_state:set(State, edoc_opts, EdocOpts),
-    State2 = rebar_state:project_apps(State1, [App]),
+    AppOpts = rebar_app_info:opts(App),
+    AppOpts1 = rebar_opts:set(AppOpts, edoc_opts, EdocOpts),
+    App1 = rebar_app_info:opts(App, AppOpts1),
+    State2 = rebar_state:project_apps(State1, [App1]),
     case providers:do(Prv, State2) of
         {ok, State3} ->
-            {State3, OutDir};
+            {State3, App1, OutDir};
         {error, Err} ->
             ?RAISE({gen_chunks, Err})
     end.
@@ -207,11 +211,11 @@ ex_doc_config_file(App, EdocOutDir) ->
     ok = write_config(ExDocConfigFile, ExDocOpts),
     ExDocConfigFile.
 
-ex_doc_opts_defaults(Opts) -> 
-    case proplists:get_value(proglang, Opts, undefined) of 
-        undefined -> 
+ex_doc_opts_defaults(Opts) ->
+    case proplists:get_value(proglang, Opts, undefined) of
+        undefined ->
             Opts ++ [{proglang, erlang}];
-        _ -> 
+        _ ->
             Opts
     end.
 
