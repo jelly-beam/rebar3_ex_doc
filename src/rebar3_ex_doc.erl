@@ -176,7 +176,7 @@ ex_doc(State, App, EdocOutDir) ->
 make_command_string(State, App, EdocOutDir, Opts) ->
     AppName = rebar_utils:to_list(rebar_app_info:name(App)),
     Vsn = vcs_vsn(State, App),
-    SourceRefVer = io_lib:format("v~ts?", [Vsn]),
+    SourceRefVer = io_lib:format("v~ts", [Vsn]),
     Ebin = rebar_app_info:ebin_dir(App),
     ExDocScript = filename:join([code:priv_dir(rebar3_ex_doc), "ex_doc"]),
     BaseArgs = [
