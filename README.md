@@ -32,7 +32,9 @@ You can add this plugin to your rebar3 project as a project plugin, like so:
 ## Setup
 
 This plugin should work out of the box, but the following configuration is recommended when publishing documentation to
-hex.pm :
+hex.pm. 
+
+Simply add the configuration below to your `rebar.config` and adjust for your project.
 
 ```
 {ex_doc, [
@@ -57,6 +59,8 @@ place a rebar.config in each app directory with the desired configuration for th
 
 After the plugin has been added to your project you can simplly run `rebar3 ex_doc` to generate your docs and view them
 in your favorite browser.
+
+Run `rebar3 help ex_doc` to see all available options.
 
 ### Integrating with rebar3_hex
 
