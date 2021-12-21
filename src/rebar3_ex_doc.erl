@@ -133,7 +133,7 @@ compile(State) ->
             ?RAISE({compile, Err})
     end.
 
--spec gen_chunks(rebar_state:t(), file:filename()) -> {rebar_state:t(), file:filename()}.
+-spec gen_chunks(rebar_state:t(), file:filename()) -> {rebar_state:t(), rebar_app_info:t(), file:filename()}.
 gen_chunks(State, App) ->
     OutDir = filename:join(rebar_app_info:out_dir(App), "doc"),
     Prv = providers:get_provider(edoc, rebar_state:providers(State)),
