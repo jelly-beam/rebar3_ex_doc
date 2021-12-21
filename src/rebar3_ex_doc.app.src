@@ -10,5 +10,6 @@
   {modules, []},
 
   {licenses, ["Apache-2.0"]},
+  {include_files, ["priv/ex_doc"]},
   {links, []}
  ]}.
