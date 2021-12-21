@@ -1,3 +1,4 @@
+%% @private
 -module(rebar3_ex_doc).
 
 -export([
@@ -132,7 +133,8 @@ gen_chunks(State, App) ->
         {preprocess, true},
         {doclet, edoc_doclet_chunks},
         {layout, edoc_layout_chunks},
-        {dir, OutDir}
+        {dir, OutDir},
+        private, hidden
     ],
     State1 = rebar_state:set(State, edoc_opts, EdocOpts),
     State2 = rebar_state:project_apps(State1, [App]),
