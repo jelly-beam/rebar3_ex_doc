@@ -182,9 +182,8 @@ make_command_string(State, App, EdocOutDir, Opts) ->
     Vsn = vcs_vsn(State, App),
     SourceRefVer = io_lib:format("v~ts", [Vsn]),
     Ebin = rebar_app_info:ebin_dir(App),
-    ExDocScript = filename:join([code:priv_dir(rebar3_ex_doc), "ex_doc"]),
     BaseArgs = [
-        ExDocScript,
+        ex_doc_escript(),
         AppName,
         Vsn,
         Ebin,
@@ -203,6 +202,19 @@ make_command_string(State, App, EdocOutDir, Opts) ->
         Optionals
     ),
     string:join(CommandArgs, " ").
+
+ex_doc_escript() ->
+    Priv = code:priv_dir(rebar3_ex_doc),
+    Default = filename:join(Priv, "ex_doc"),
+    case os:type() of
+         {win32, _} ->
+            win32_ex_doc_script(Default);
+        _ ->
+         Default   
+    end.
+
+win32_ex_doc_script(Path) ->
+   "escript.exe " ++ filename:nativename(Path).
 
 -spec ex_doc_config_file(rebar_app_info:t(), file:filename()) -> file:filename().
 ex_doc_config_file(App, EdocOutDir) ->

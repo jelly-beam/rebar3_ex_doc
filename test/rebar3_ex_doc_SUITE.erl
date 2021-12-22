@@ -14,7 +14,7 @@ all() ->
 
 init_per_suite(Config) ->
     {ok, Cwd} = file:get_cwd(),
-    file:set_cwd("../../../.."),
+    ok = file:set_cwd("../../../.."),
     {ok, _} = rebar_utils:sh("mix do deps.get, escript.build", [
         {return_on_error, true}
     ]),
