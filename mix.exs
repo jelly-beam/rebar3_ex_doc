@@ -23,7 +23,7 @@ defmodule RebarHexDoc.MixProject do
 
   defp deps do
     [
-      {:ex_doc, git: "https://github.com/elixir-lang/ex_doc"}
+      {:ex_doc, "~> 0.27.1"}
     ]
   end
 
