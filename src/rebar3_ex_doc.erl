@@ -179,6 +179,9 @@ ex_doc(State, App, EdocOutDir) ->
 ) -> string().
 make_command_string(State, App, EdocOutDir, Opts) ->
     AppName = rebar_utils:to_list(rebar_app_info:name(App)),
+    AppSrcFile = rebar_app_info:app_file_src(App),
+    AppSrc = rebar_file_utils:try_consult(AppSrcFile), 
+    PkgName = proplists:get_value(pkg_name, AppSrc, AppName),
     Vsn = vcs_vsn(State, App),
     SourceRefVer = io_lib:format("v~ts", [Vsn]),
     Ebin = rebar_app_info:ebin_dir(App),
@@ -187,6 +190,8 @@ make_command_string(State, App, EdocOutDir, Opts) ->
         AppName,
         Vsn,
         Ebin,
+        "--package",
+        rebar_utils:to_list(PkgName),
         "--source-ref",
         SourceRefVer,
         "--config",
