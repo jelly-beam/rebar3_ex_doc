@@ -62,22 +62,22 @@ do(State) ->
 format_error({app_not_found, AppName}) ->
     io_lib:format("The app '~ts' specified was not found.", [AppName]);
 format_error({gen_chunks, Err}) ->
-    rebar_api:debug("An unknown error occured generating chunks: ~p", [Err]),
-    "An unknown error occured generating doc chunks with edoc. Run with DIAGNOSTICS=1 for more details.";
+    rebar_api:debug("An unknown error occurred generating chunks: ~p", [Err]),
+    "An unknown error occurred generating doc chunks with edoc. Run with DIAGNOSTICS=1 for more details.";
 format_error({compile, Err}) ->
-    rebar_api:debug("An unknown error occured compiling apps: ~p", [Err]),
-    "An unknown error occured compiling apps. Run with DIAGNOSTICS=1 for more details.";
+    rebar_api:debug("An unknown error occurred compiling apps: ~p", [Err]),
+    "An unknown error occurred compiling apps. Run with DIAGNOSTICS=1 for more details.";
 format_error({write_config, Err}) ->
     rebar_api:debug("Unknown error error occurred generating docs config: ~p", [Err]),
-    "An unknown error occured generating docs config. Run with DIAGNOSTICS=1 for more details.";
+    "An unknown error occurred generating docs config. Run with DIAGNOSTICS=1 for more details.";
 format_error({unsupported_otp, Ver}) ->
     Str = "You are using erlang/OTP '~ts', but this plugin requires at least erlang/OTP 24.",
     io_lib:format(Str, [integer_to_list(Ver)]);
 format_error({ex_doc, _}) ->
     "";
 format_error(Err) ->
-    rebar_api:debug("An unknown error occured: ~p", [Err]),
-    "An unknown error has occured. Run with DIAGNOSTICS=1 for more details.".
+    rebar_api:debug("An unknown error occurred: ~p", [Err]),
+    "An unknown error has occurred. Run with DIAGNOSTICS=1 for more details.".
 
 %% ===================================================================
 %% Private

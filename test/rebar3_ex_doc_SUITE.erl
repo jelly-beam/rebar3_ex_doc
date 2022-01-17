@@ -87,20 +87,20 @@ format_errors(_) ->
     ?assertEqual(Err, rebar3_ex_doc:format_error({app_not_found, foo})),
 
     Err1 =
-        "An unknown error occured generating doc chunks with edoc. Run with DIAGNOSTICS=1 for more details.",
+        "An unknown error occurred generating doc chunks with edoc. Run with DIAGNOSTICS=1 for more details.",
     ?assertEqual(Err1, rebar3_ex_doc:format_error({gen_chunks, some_error})),
 
-    Err2 = "An unknown error occured compiling apps. Run with DIAGNOSTICS=1 for more details.",
+    Err2 = "An unknown error occurred compiling apps. Run with DIAGNOSTICS=1 for more details.",
     ?assertEqual(Err2, rebar3_ex_doc:format_error({compile, some_error})),
 
     Err3 =
-        "An unknown error occured generating docs config. Run with DIAGNOSTICS=1 for more details.",
+        "An unknown error occurred generating docs config. Run with DIAGNOSTICS=1 for more details.",
     ?assertEqual(Err3, rebar3_ex_doc:format_error({write_config, some_error})),
 
     Err4 = "",
     ?assertEqual(Err4, rebar3_ex_doc:format_error({ex_doc, abort})),
 
-    Err5 = "An unknown error has occured. Run with DIAGNOSTICS=1 for more details.",
+    Err5 = "An unknown error has occurred. Run with DIAGNOSTICS=1 for more details.",
     ?assertEqual(Err5, rebar3_ex_doc:format_error({eh, some_error})).
 
 check_docs(App) ->
