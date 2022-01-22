@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Added -e/--ex-doc switch to allow specifying an alternative ex_doc escript.
 - Added changelog file as centralized release note so existing developer can
   have quick follow-up on recent changes.
 - Added a screenshot to showcase the generated HTML output and how embedded

@@ -9,6 +9,7 @@ all() ->
         generate_docs,
         generate_docs_with_current_app_set,
         generate_docs_with_bad_config,
+        generate_docs_with_alternate_ex_doc,
         format_errors
     ].
 
@@ -33,8 +34,7 @@ generate_docs(Config) ->
             {ex_doc, [
                 {source_url, <<"https://github.com/eh/eh">>},
                 {extras, [<<"README.md">>, <<"LICENSE">>]},
-                {main, <<"readme">>},
-                {proglang, erlang}
+                {main, <<"readme">>}
             ]}
     },
     {State, App} = make_stub(StubConfig),
@@ -43,6 +43,50 @@ generate_docs(Config) ->
     ok = make_license(App),
     {ok, _} = rebar3_ex_doc:do(State),
     check_docs(App).
+
+generate_docs_with_alternate_ex_doc(Config) ->
+    Priv = code:priv_dir(rebar3_ex_doc),
+    Default = filename:join(Priv, "ex_doc"),
+    Alt = filename:join(data_dir(Config), "ex_doc"),
+    {ok, _} = file:copy(Default, Alt),
+    file:change_mode(Alt, 8#00700),
+
+    StubConfig = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        name => "alternate_ex_doc",
+        args => "-e " ++ Alt,
+        config =>
+            {ex_doc, [
+                {source_url, <<"https://github.com/eh/eh">>},
+                {extras, [<<"README.md">>, <<"LICENSE">>]},
+                {main, <<"readme">>}
+            ]}
+    },
+    {State, App} = make_stub(StubConfig),
+
+    ok = make_readme(App),
+    ok = make_license(App),
+    {ok, _} = rebar3_ex_doc:do(State),
+    check_docs(App).
+
+%     StubConfig1 = #{
+%         app_src => #{version => "0.1.0"},
+%         dir => data_dir(Config),
+%         name => "alternate_ex_doc_bad_path",
+%         args => "-e path/to",
+%         config =>
+%             {ex_doc, [
+%                 {source_url, <<"https://github.com/eh/eh">>},
+%                 {extras, [<<"README.md">>, <<"LICENSE">>]},
+%                 {main, <<"readme">>}
+%             ]}
+%     },
+%     {State1, App1} = make_stub(StubConfig1),
+
+%     ok = make_readme(App1),
+%     ok = make_license(App1),
+%     ?assertError({error,{rebar3_ex_doc,{invalid_ex_doc_path,"path/to"}}}, rebar3_ex_doc:do(State1)).
 
 generate_docs_with_current_app_set(Config) ->
     StubConfig = #{
@@ -53,8 +97,7 @@ generate_docs_with_current_app_set(Config) ->
             {ex_doc, [
                 {source_url, <<"https://github.com/eh/eh">>},
                 {extras, [<<"README.md">>, <<"LICENSE">>]},
-                {main, <<"readme">>},
-                {proglang, erlang}
+                {main, <<"readme">>}
             ]}
     },
     {State, App} = make_stub(StubConfig),
@@ -73,8 +116,7 @@ generate_docs_with_bad_config(Config) ->
             {ex_doc, [
                 {source_url, "https://github.com/eh/eh"},
                 {extras, ["README.md", "LICENSE"]},
-                {main, "readme"},
-                {proglang, erlang}
+                {main, "readme"}
             ]}
     },
     {State, App} = make_stub(StubConfig),
@@ -155,9 +197,20 @@ make_stub(#{name := Name, dir := Dir} = StubConfig) ->
     {ok, State2} = rebar_prv_edoc:init(State1),
     {ok, State3} = rebar_prv_compile:init(State2),
     {ok, State4} = rebar_prv_compile:do(State3),
-    {ok, State5} = rebar3_ex_doc:init(State4),
+    {ok, State5} = init_ex_doc(State4, StubConfig),
     compile_src_file(App),
     {State5, App}.
+
+init_ex_doc(State, #{args := Args}) ->
+    State1 = rebar_state:command_args(State, Args),
+    {ok, State2} = rebar3_ex_doc:init(State1),
+    Provider = providers:get_provider_by_module(rebar3_ex_doc, rebar_state:providers(State2)),
+    Opts = providers:opts(Provider) ++ rebar3:global_option_spec_list(),
+    {ok, Args2} = getopt:parse(Opts, rebar_state:command_args(State2)),
+    {ok, rebar_state:command_parsed_args(State2, Args2)};
+
+init_ex_doc(State, _) ->
+    rebar3_ex_doc:init(State).
 
 init_state(Dir, Config) ->
     State = rebar_state(Dir, Config),
