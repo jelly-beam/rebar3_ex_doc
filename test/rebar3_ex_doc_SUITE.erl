@@ -68,25 +68,25 @@ generate_docs_with_alternate_ex_doc(Config) ->
     ok = make_readme(App),
     ok = make_license(App),
     {ok, _} = rebar3_ex_doc:do(State),
-    check_docs(App).
+    check_docs(App),
 
-%     StubConfig1 = #{
-%         app_src => #{version => "0.1.0"},
-%         dir => data_dir(Config),
-%         name => "alternate_ex_doc_bad_path",
-%         args => "-e path/to",
-%         config =>
-%             {ex_doc, [
-%                 {source_url, <<"https://github.com/eh/eh">>},
-%                 {extras, [<<"README.md">>, <<"LICENSE">>]},
-%                 {main, <<"readme">>}
-%             ]}
-%     },
-%     {State1, App1} = make_stub(StubConfig1),
+    StubConfig1 = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        name => "alternate_ex_doc_bad_path",
+        args => "-e path/to",
+        config =>
+            {ex_doc, [
+                {source_url, <<"https://github.com/eh/eh">>},
+                {extras, [<<"README.md">>, <<"LICENSE">>]},
+                {main, <<"readme">>}
+            ]}
+    },
+    {State1, App1} = make_stub(StubConfig1),
 
-%     ok = make_readme(App1),
-%     ok = make_license(App1),
-%     ?assertError({error,{rebar3_ex_doc,{invalid_ex_doc_path,"path/to"}}}, rebar3_ex_doc:do(State1)).
+    ok = make_readme(App1),
+    ok = make_license(App1),
+    ?assertError({error,{rebar3_ex_doc,{invalid_ex_doc_path,"path/to"}}}, rebar3_ex_doc:do(State1)).
 
 generate_docs_with_current_app_set(Config) ->
     StubConfig = #{
