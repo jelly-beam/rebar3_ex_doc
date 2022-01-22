@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Update to latest version of ex_doc (0.27.3)
 - Added -e/--ex-doc switch to allow specifying an alternative ex_doc escript.
 - Added changelog file as centralized release note so existing developer can
   have quick follow-up on recent changes.
@@ -18,17 +19,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   owner and license term of this project.
 - Replaced the Apache2 license with Markdown version instead of plain text
   version to improve readability.
-- Fix misc. Markdown issues to improve readability.
+- Fix misc. Markdown issues to improve readability. 
+- Fixed a bug where by we were not passing the package name to `ex_doc`
 
-## v0.2.5 [2022-01-12]
+## v0.2.5 [2022-01-11]
+
+- Update to the latest version of ex_doc (0.27.1)
+
+## v0.2.4 [2022-01-10]
 
 - Fixed a bug that prevented generating docs on windows thanks to @cw789 for
   raising the issue and testing the patch (this was actually released in 0.2.4,
   but noting here).
-- Fixed a bug where by we were not passing the package name to `ex_doc`
+- Add link to github in hex metadata. 
+
+## v0.2.3 [2021-12-21]
+
 - Fixed a bug where by `edoc` opts along with `ex_doc_opts` might cause beam chunks
-  to not be emitted (this was actually fixed in 0.2.3, but noting here). Thanks
-  to @Taure for raising the issue.
+  to not be emitted. Thanks to @Taure for raising the issue.
+
+## v0.2.2 [2021-12-21]
+
+- Be specific in README.md where `ex_doc` configuration should be placed.
+- remove rogue "?" from source rev argument. 
+
+## v0.2.1 [2021-12-21]
+
+- Make `{proglang, erlang}` the default for ex_doc config.
+- Add ourselves (`rebar3_ex_doc`) to hex config for publishing. 
+
 
 ## v0.2.0 [2021-12-21]
 
