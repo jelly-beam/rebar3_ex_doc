@@ -36,6 +36,7 @@ init(State) ->
             {desc, "Generate documentation using ex_doc."},
             {opts, [
                 {app, $a, "app", string, help(app)},
+                {ex_doc, $e, "ex_doc", string, help(ex_doc)},
                 {canonical, $n, "canonical", string, help(canonical)},
                 {output, $o, "output", {string, ?DEFAULT_DOC_DIR}, help(output)},
                 {language, undefined, "language", {string, ?DEFAULT_DOC_LANG}, help(language)},
@@ -61,6 +62,9 @@ do(State) ->
 -spec format_error(any()) -> iolist().
 format_error({app_not_found, AppName}) ->
     io_lib:format("The app '~ts' specified was not found.", [AppName]);
+format_error({invalid_ex_doc_path, Path}) ->
+    Invalid = io_lib:format("Invalid ex_doc escript path : '~ts'~n", [Path]),
+    Invalid ++ "Ensure that the path specified is a path to working ex_doc escript.";
 format_error({gen_chunks, Err}) ->
     rebar_api:debug("An unknown error occurred generating chunks: ~p", [Err]),
     "An unknown error occurred generating doc chunks with edoc. Run with DIAGNOSTICS=1 for more details.";
@@ -180,13 +184,13 @@ ex_doc(State, App, EdocOutDir) ->
 make_command_string(State, App, EdocOutDir, Opts) ->
     AppName = rebar_utils:to_list(rebar_app_info:name(App)),
     AppSrcFile = rebar_app_info:app_file_src(App),
-    AppSrc = rebar_file_utils:try_consult(AppSrcFile), 
+    AppSrc = rebar_file_utils:try_consult(AppSrcFile),
     PkgName = proplists:get_value(pkg_name, AppSrc, AppName),
     Vsn = vcs_vsn(State, App),
     SourceRefVer = io_lib:format("v~ts", [Vsn]),
     Ebin = rebar_app_info:ebin_dir(App),
     BaseArgs = [
-        ex_doc_escript(),
+        ex_doc_escript(Opts),
         AppName,
         Vsn,
         Ebin,
@@ -208,14 +212,27 @@ make_command_string(State, App, EdocOutDir, Opts) ->
     ),
     string:join(CommandArgs, " ").
 
-ex_doc_escript() ->
-    Priv = code:priv_dir(rebar3_ex_doc),
-    Default = filename:join(Priv, "ex_doc"),
+ex_doc_escript(Opts) ->
+    ExDoc = ex_doc_script_path(Opts),
     case os:type() of
          {win32, _} ->
-            win32_ex_doc_script(Default);
+            win32_ex_doc_script(ExDoc);
         _ ->
-         Default   
+         ExDoc
+    end.
+
+ex_doc_script_path(Opts) ->
+    case proplists:get_value(ex_doc, Opts, undefined) of
+        undefined ->
+             Priv = code:priv_dir(rebar3_ex_doc),
+             filename:join(Priv, "ex_doc");
+        Path ->
+            case filelib:is_regular(Path) of
+                true ->
+                    Path;
+                false ->
+                    ?RAISE({invalid_ex_doc_path, Path})
+            end
     end.
 
 win32_ex_doc_script(Path) ->
@@ -341,7 +358,9 @@ cmd_vsn_invoke(Cmd, Dir) ->
     rebar_string:trim(VsnString, trailing, "\n").
 
 help(app) ->
-    "Specify which app to generate docs for within an umbrella project";
+    "Specify which app to generate docs for within an umbrella project.";
+help(ex_doc) ->
+    "Specifiy a path to an alternate version of ex_doc on your system (e.g., /path/to/ex_doc).";
 help(canonical) ->
     "Indicate the preferred URL with rel=\"canonical\" link element,"
     "defaults to no canonical path.";
