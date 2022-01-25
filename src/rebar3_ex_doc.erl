@@ -204,10 +204,16 @@ make_command_string(State, App, EdocOutDir, Opts) ->
         output_dir(App, Opts),
         "--quiet"
     ],
+    DepPaths = rebar_state:code_paths(State, all_deps),
+    PathArgs = lists:foldl(
+        fun(Path, Args) -> ["--paths", Path | Args] end,
+        [],
+        DepPaths
+    ),
     Optionals = [canonical, language, logo, formatter],
     CommandArgs = lists:foldl(
         fun(Opt, Args) -> Args ++ maybe_add_opt(Opt, Opts) end,
-        BaseArgs,
+        BaseArgs ++ PathArgs,
         Optionals
     ),
     string:join(CommandArgs, " ").
