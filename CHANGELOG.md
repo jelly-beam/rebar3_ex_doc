@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.2.7 [2022-01-24] 
+
+- Add the ebin directories of dependencies to the code path using ex_doc's --paths option.
+
 ## v0.2.6 [2022-01-22]
 
 - Update to latest version of ex_doc (0.27.3)
