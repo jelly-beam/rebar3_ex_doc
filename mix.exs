@@ -9,8 +9,8 @@ defmodule RebarHexDoc.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       escript: [main_module: ExDoc.CLI, name: "ex_doc", path: "priv/ex_doc"],
-      docs: [main: "readme", # The main page in the docs
-          extras: ["README.md"]]
+      # The main page in the docs
+      docs: [main: "readme", extras: ["README.md"]]
     ]
   end
 
@@ -23,9 +23,7 @@ defmodule RebarHexDoc.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.28.2"}
+      {:ex_doc, "~> 0.28.3"}
     ]
   end
-
-
 end
