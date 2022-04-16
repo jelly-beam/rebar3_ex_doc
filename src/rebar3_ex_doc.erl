@@ -246,10 +246,65 @@ win32_ex_doc_script(Path) ->
 
 -spec ex_doc_config_file(rebar_app_info:t(), file:filename()) -> file:filename().
 ex_doc_config_file(App, EdocOutDir) ->
-    ExDocOpts = ex_doc_opts_defaults(rebar_app_info:get(App, ex_doc, [])),
+    ExDocOpts0 = ex_doc_opts_defaults(rebar_app_info:get(App, ex_doc, [])),
+    ExDocOpts = to_ex_doc_format(ExDocOpts0),
     ExDocConfigFile = filename:join([EdocOutDir, "docs.config"]),
     ok = write_config(ExDocConfigFile, ExDocOpts),
     ExDocConfigFile.
+
+to_ex_doc_format(ExDocOpts) ->
+    lists:foldl(
+        fun ({main, Main}, Opts) ->
+                [{main, to_lower_binary(filename:rootname(Main))} | Opts];
+            ({logo, Logo}, Opts) ->
+                [{logo, to_binary(Logo)} | Opts];
+            ({extras, ExDocOptsExtras}, Opts) ->
+                [{extras,
+                  lists:foldl(
+                      fun ({Extra, ExtraOpts}, Extras) ->
+                              [{to_atom(Extra), to_ex_doc_format_extras(ExtraOpts)} | Extras];
+                          (Extra, Extras) when is_list(Extra) ->
+                              [to_binary(Extra) | Extras];
+                          (OtherExtra, Extras) -> % unknown: leaving as is
+                              [OtherExtra | Extras]
+                      end,
+                      [],
+                      ExDocOptsExtras
+                  )} | Opts];
+            (OtherOpts, Opts) -> % unknown: leaving as is
+                [OtherOpts | Opts]
+        end,
+        [],
+        ExDocOpts
+    ).
+
+to_ex_doc_format_extras(Extras) ->
+    maps:map(
+        fun (Key, Value) when Key =:= filename
+                       orelse Key =:= title ->
+                to_binary(Value);
+            (_Key, Value) -> % unknown: leaving as is
+                Value
+        end,
+        Extras
+    ).
+
+to_binary(Term) when is_list(Term) ->
+    list_to_binary(Term);
+to_binary(Term) when is_atom(Term) ->
+    atom_to_binary(Term, latin1);
+to_binary(Term) -> % unknown: leaving as is
+    Term.
+
+to_lower_binary(Term) when is_binary(Term) ->
+    to_lower_binary(binary_to_list(Term));
+to_lower_binary(Term) when is_list(Term) ->
+    list_to_binary(string:to_lower(Term)).
+
+to_atom(Term) when is_list(Term) ->
+    list_to_atom(Term);
+to_atom(Term) -> % unknown: leaving as is
+    Term.
 
 ex_doc_opts_defaults(Opts) ->
     case proplists:get_value(proglang, Opts, undefined) of
