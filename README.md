@@ -45,8 +45,8 @@ Simply add the configuration below to your `rebar.config` and adjust for your pr
 
 ```erlang
 {ex_doc, [
-     {extras, [<<"README.md">>, <<"LICENSE">>]},
-     {main, <<"readme">>},
+     {extras, ["README.md", "LICENSE"]},
+     {main, "README.md"},
      {source_url, <<"https://github.com/namespace/your_app">>}
 ]}.
 ```
@@ -56,11 +56,11 @@ For further customization, see the configuration for `rebar3_ex_doc`:
 ```erlang
 {ex_doc, [
     {extras, [
-          {'CHANGELOG.md', #{title => <<"Changelog">>}},
-          {'README.md', #{title => <<"Overview">>}},
-          {'LICENSE.md', #{title => <<"License">>}}
+          {"CHANGELOG.md", #{title => "Changelog"}},
+          {"README.md", #{title => "Overview"}},
+          {"LICENSE.md", #{title => "License"}}
     ]},
-    {main, <<"readme">>},
+    {main, "README.md"},
     {source_url, <<"https://github.com/starbelly/rebar3_ex_doc">>},
     {assets, <<"assets">>},
     {api_reference, false}
