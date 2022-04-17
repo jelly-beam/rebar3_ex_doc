@@ -47,7 +47,7 @@ Simply add the configuration below to your `rebar.config` and adjust for your pr
 {ex_doc, [
      {extras, ["README.md", "LICENSE"]},
      {main, "README.md"},
-     {source_url, <<"https://github.com/namespace/your_app">>}
+     {source_url_pattern, "https://github.com/namespace/your_app"}
 ]}.
 ```
 
@@ -61,8 +61,8 @@ For further customization, see the configuration for `rebar3_ex_doc`:
           {"LICENSE.md", #{title => "License"}}
     ]},
     {main, "README.md"},
-    {source_url, <<"https://github.com/starbelly/rebar3_ex_doc">>},
-    {assets, <<"assets">>},
+    {source_url_pattern, "https://github.com/starbelly/rebar3_ex_doc"},
+    {assets, "assets"},
     {api_reference, false}
 ]}.
 ```
