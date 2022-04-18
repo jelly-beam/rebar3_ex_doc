@@ -33,7 +33,7 @@ generate_docs(Config) ->
         name => "default_docs",
         config =>
             {ex_doc, [
-                {source_url_pattern, <<"https://github.com/eh/eh">>},
+                {source_url, <<"https://github.com/eh/eh">>},
                 {extras, [<<"README.md">>, <<"LICENSE">>]},
                 {main, <<"readme">>}
             ]}
@@ -83,7 +83,7 @@ generate_docs_with_alternate_ex_doc(Config) ->
         args => "-e " ++ Alt,
         config =>
             {ex_doc, [
-                {source_url_pattern, <<"https://github.com/eh/eh">>},
+                {source_url, <<"https://github.com/eh/eh">>},
                 {extras, [<<"README.md">>, <<"LICENSE">>]},
                 {main, <<"readme">>}
             ]}
@@ -102,7 +102,7 @@ generate_docs_with_alternate_ex_doc(Config) ->
         args => "-e path/to",
         config =>
             {ex_doc, [
-                {source_url_pattern, <<"https://github.com/eh/eh">>},
+                {source_url, <<"https://github.com/eh/eh">>},
                 {extras, [<<"README.md">>, <<"LICENSE">>]},
                 {main, <<"readme">>}
             ]}
@@ -120,7 +120,7 @@ generate_docs_with_current_app_set(Config) ->
         name => "current_app",
         config =>
             {ex_doc, [
-                {source_url_pattern, <<"https://github.com/eh/eh">>},
+                {source_url, <<"https://github.com/eh/eh">>},
                 {extras, [<<"README.md">>, <<"LICENSE">>]},
                 {main, <<"readme">>}
             ]}
@@ -139,7 +139,7 @@ generate_docs_with_bad_config(Config) ->
         name => "default_docs1",
         config =>
             {ex_doc, [
-                {source_url_pattern, 'https://github.com/eh/eh'},
+                {source_url, 'https://github.com/eh/eh'},
                 {extras, ["README.md", "LICENSE"]},
                 {main, "readme"}
             ]}

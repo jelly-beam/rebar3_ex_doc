@@ -254,67 +254,25 @@ ex_doc_config_file(App, EdocOutDir) ->
 
 to_ex_doc_format(ExDocOpts) ->
     lists:foldl(
-        fun ({authors = K, Authors}, Opts) ->
-                [{K, [to_binary(Author) || Author <- Authors]} | Opts];
-            ({deps = K, Deps}, Opts) ->
-                [{K, maps:map(
-                         fun (_DepName, DepDocURL) ->
-                             to_binary(DepDocURL)
-                         end,
-                         Deps
-                     )} | Opts];
+        fun ({api_reference = K, APIReference}, Opts) ->
+                [{K, APIReference} | Opts];
+            ({assets = K, Assets}, Opts) ->
+                [{K, to_binary(Assets)} | Opts];
             ({extras = K, Extras}, Opts) ->
                 [{K, to_ex_doc_format_extras(Extras)} | Opts];
-            ({filter_modules = K, FilterModules}, Opts) ->
-                [{K, [to_ex_doc_format_filter_module(FilterModule) || FilterModule <- FilterModules]} | Opts];
-            ({formatters = K, Formatters}, Opts) ->
-                [{K, [to_binary(Formatter) || Formatter <- Formatters]} | Opts];
-            ({groups_for_extras = K, GroupsForExtras}, Opts) ->
-                [{K, to_ex_doc_format_groups_for_extras(GroupsForExtras)} | Opts];
             ({main = K, Main}, Opts) ->
-                [{K, to_lower_binary(filename:rootname(Main))} | Opts];
-            ({OptKey, OptValue}, Opts) when is_list(OptValue)
-                                    andalso (OptKey =:= assets
-                                      orelse OptKey =:= canonical
-                                      orelse OptKey =:= cover
-                                      orelse OptKey =:= extra_section
-                                      orelse OptKey =:= javascript_config_path
-                                      orelse OptKey =:= language
-                                      orelse OptKey =:= logo
-                                      orelse OptKey =:= output
-                                      orelse OptKey =:= source_beam
-                                      orelse OptKey =:= source_ref
-                                      orelse OptKey =:= source_url_pattern)
-                                       ->
-                [{OptKey, to_binary(OptValue)} | Opts];
-            (OtherOpt, Opts) -> % unhandled: leaving as is
-                % api_reference
-                % before_closing_body_tag
-                % before_closing_head_tag
-                % ignore_apps
-                % nest_modules_by_prefix
-                % markdown_processor
-                % skip_undefined_reference_warnings_on
-                % groups_for_modules
-                % groups_for_functions
+                FilenameNoExt = filename:rootname(Main),
+                [{K, to_lower_binary(FilenameNoExt)} | Opts];
+            ({source_url = K, SourceURL}, Opts) ->
+                [{K, to_binary(SourceURL)} | Opts];
+            ({proglang, _} = V, Opts) -> % internal exception
+                [V | Opts];
+            (OtherOpt, Opts) ->
+                rebar_api:warn("unknown ex_doc option ~p", [OtherOpt]),
                 [OtherOpt | Opts]
         end,
         [],
         ExDocOpts
-    ).
-
-to_ex_doc_format_filter_module(FilterModule) when is_list(FilterModule) ->
-    to_binary(FilterModule);
-to_ex_doc_format_filter_module(FilterModule) -> % unhandled: leaving as is
-    FilterModule.
-
-to_ex_doc_format_groups_for_extras(GroupsForExtras0) ->
-    maps:fold(
-        fun (Key, Value, GroupsForExtras) ->
-            GroupsForExtras#{ to_binary(Key) => to_binary(Value) }
-        end, 
-        #{},
-        GroupsForExtras0
     ).
 
 to_ex_doc_format_extras(Extras0) ->
@@ -336,7 +294,8 @@ to_ex_doc_format_extras_opts(Extras) ->
                 to_binary(Filename);
             (title, Title) ->
                 to_binary(Title);
-            (_Key, Value) -> % unknown: leaving as is
+            (Key, Value) ->
+                rebar_api:warn("unknown ex_doc.extras option ~p := ~p", [Key, Value]),
                 Value
         end,
         Extras

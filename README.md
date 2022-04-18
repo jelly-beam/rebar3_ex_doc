@@ -47,7 +47,7 @@ Simply add the configuration below to your `rebar.config` and adjust for your pr
 {ex_doc, [
      {extras, ["README.md", "LICENSE"]},
      {main, "README.md"},
-     {source_url_pattern, "https://github.com/namespace/your_app"}
+     {source_url, "https://github.com/namespace/your_app"}
 ]}.
 ```
 
@@ -61,7 +61,7 @@ For further customization, see the configuration for `rebar3_ex_doc`:
           {"LICENSE.md", #{title => "License"}}
     ]},
     {main, "README.md"},
-    {source_url_pattern, "https://github.com/starbelly/rebar3_ex_doc"},
+    {source_url, "https://github.com/starbelly/rebar3_ex_doc"},
     {assets, "assets"},
     {api_reference, false}
 ]}.
@@ -92,6 +92,11 @@ To integrate with `rebar3_hex` merely specify `rebar3_ex_doc` as the doc provide
     {doc, #{provider => ex_doc}}
 ]}.
 ```
+
+### Supported options
+
+Not all `ex_doc` options are supported. This means we'll warn on unknown options, but still pass them to `ex_doc`. We try to make sure the supported options are converted to the format known by `ex_doc`.
+In case you get a warning for something that is working or would like further conversion support, open a [GitHub issue](https://github.com/starbelly/rebar3_ex_doc/issues).
 
 # Development
 
