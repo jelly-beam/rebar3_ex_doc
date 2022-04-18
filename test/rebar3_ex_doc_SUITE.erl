@@ -139,7 +139,7 @@ generate_docs_with_bad_config(Config) ->
         name => "default_docs1",
         config =>
             {ex_doc, [
-                {source_url, 'https://github.com/eh/eh'},
+                {source_url, {"https://github.com/eh/eh", 2}},
                 {extras, ["README.md", "LICENSE"]},
                 {main, "readme"}
             ]}
