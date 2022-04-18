@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
  - bump ex_doc to 0.28.3
+ - merge (from `rebar.config`) configuration `edoc_opts` with `ex_doc`
 
 ## v0.2.8 [2022-01-25]
 
