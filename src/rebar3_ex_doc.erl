@@ -249,10 +249,77 @@ win32_ex_doc_script(Path) ->
 
 -spec ex_doc_config_file(rebar_app_info:t(), file:filename()) -> file:filename().
 ex_doc_config_file(App, EdocOutDir) ->
-    ExDocOpts = ex_doc_opts_defaults(rebar_app_info:get(App, ex_doc, [])),
+    ExDocOpts0 = ex_doc_opts_defaults(rebar_app_info:get(App, ex_doc, [])),
+    ExDocOpts = to_ex_doc_format(ExDocOpts0),
     ExDocConfigFile = filename:join([EdocOutDir, "docs.config"]),
     ok = write_config(ExDocConfigFile, ExDocOpts),
     ExDocConfigFile.
+
+to_ex_doc_format(ExDocOpts) ->
+    lists:foldl(
+        fun ({api_reference = K, APIReference}, Opts) ->
+                [{K, APIReference} | Opts];
+            ({assets = K, Assets}, Opts) ->
+                [{K, to_binary(Assets)} | Opts];
+            ({extras = K, Extras}, Opts) ->
+                [{K, to_ex_doc_format_extras(Extras)} | Opts];
+            ({main = K, Main}, Opts) ->
+                FilenameNoExt = filename:rootname(Main),
+                [{K, to_lower_binary(FilenameNoExt)} | Opts];
+            ({source_url = K, SourceURL}, Opts) ->
+                [{K, to_binary(SourceURL)} | Opts];
+            ({proglang, _} = V, Opts) -> % internal exception
+                [V | Opts];
+            (OtherOpt, Opts) ->
+                rebar_api:warn("unknown ex_doc option ~p", [OtherOpt]),
+                [OtherOpt | Opts]
+        end,
+        [],
+        ExDocOpts
+    ).
+
+to_ex_doc_format_extras(Extras0) ->
+    lists:foldl(
+        fun ({Extra, ExtraOpts}, Extras) ->
+                [{to_atom(Extra), to_ex_doc_format_extras_opts(ExtraOpts)} | Extras];
+            (Extra, Extras) when is_list(Extra) ->
+                [to_binary(Extra) | Extras];
+            (OtherExtra, Extras) -> % unknown: leaving as is
+                [OtherExtra | Extras]
+        end,
+        [],
+        Extras0
+    ).
+
+to_ex_doc_format_extras_opts(Extras) ->
+    maps:map(
+        fun (filename, Filename) ->
+                to_binary(Filename);
+            (title, Title) ->
+                to_binary(Title);
+            (Key, Value) ->
+                rebar_api:warn("unknown ex_doc.extras option ~p := ~p", [Key, Value]),
+                Value
+        end,
+        Extras
+    ).
+
+to_binary(Term) when is_list(Term) ->
+    list_to_binary(Term);
+to_binary(Term) when is_atom(Term) ->
+    atom_to_binary(Term, latin1);
+to_binary(Term) -> % unknown: leaving as is
+    Term.
+
+to_lower_binary(Term) when is_binary(Term) ->
+    to_lower_binary(binary_to_list(Term));
+to_lower_binary(Term) when is_list(Term) ->
+    list_to_binary(string:to_lower(Term)).
+
+to_atom(Term) when is_list(Term) ->
+    list_to_atom(Term);
+to_atom(Term) -> % unknown: leaving as is
+    Term.
 
 ex_doc_opts_defaults(Opts) ->
     case proplists:get_value(proglang, Opts, undefined) of

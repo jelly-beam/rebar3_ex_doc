@@ -7,6 +7,7 @@
 all() ->
     [
         generate_docs,
+        generate_docs_alternate_rebar3_config_format,
         generate_docs_with_current_app_set,
         generate_docs_with_bad_config,
         generate_docs_with_alternate_ex_doc,
@@ -35,6 +36,30 @@ generate_docs(Config) ->
                 {source_url, <<"https://github.com/eh/eh">>},
                 {extras, [<<"README.md">>, <<"LICENSE">>]},
                 {main, <<"readme">>}
+            ]}
+    },
+    {State, App} = make_stub(StubConfig),
+
+    ok = make_readme(App),
+    ok = make_license(App),
+    {ok, _} = rebar3_ex_doc:do(State),
+    check_docs(App).
+
+generate_docs_alternate_rebar3_config_format(Config) ->
+    StubConfig = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        name => "default_docs",
+        config =>
+            {ex_doc, [
+                {main, "README.md"},
+                {extras, [
+                    "README.md",
+                    {"LICENSE", #{
+                        filename => "LICENSE.md",
+                        title => "License"
+                    }
+                }]}
             ]}
     },
     {State, App} = make_stub(StubConfig),
@@ -114,7 +139,7 @@ generate_docs_with_bad_config(Config) ->
         name => "default_docs1",
         config =>
             {ex_doc, [
-                {source_url, "https://github.com/eh/eh"},
+                {source_url, {"https://github.com/eh/eh", 2}},
                 {extras, ["README.md", "LICENSE"]},
                 {main, "readme"}
             ]}
