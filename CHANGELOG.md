@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.2.9 [2022-04-22]
+
  - bump ex_doc to 0.28.3
  - merge (from `rebar.config`) configuration `edoc_opts` with `ex_doc`
  - Switch to stings vs binaries for keys while still supporting binaries for backwards compat
