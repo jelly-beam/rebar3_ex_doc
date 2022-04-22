@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - bump ex_doc to 0.28.3
  - merge (from `rebar.config`) configuration `edoc_opts` with `ex_doc`
- - Switch to stings vs binaries for keys while still supporting binaries for backwards compat
+ - Switch to strings vs binaries for keys while still supporting binaries for backwards compat
  - don't require the user to lowercase the main document name
 
 ## v0.2.8 [2022-01-25]
