@@ -61,6 +61,7 @@ For further customization, see the configuration for `rebar3_ex_doc`:
           {"LICENSE.md", #{title => "License"}}
     ]},
     {main, "README.md"},
+    {homepage_url, "https://github.com/starbelly/rebar3_ex_doc"},
     {source_url, "https://github.com/starbelly/rebar3_ex_doc"},
     {assets, "assets"},
     {api_reference, false}

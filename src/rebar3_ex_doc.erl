@@ -263,6 +263,8 @@ to_ex_doc_format(ExDocOpts) ->
                 [{K, to_binary(Assets)} | Opts];
             ({extras = K, Extras}, Opts) ->
                 [{K, to_ex_doc_format_extras(Extras)} | Opts];
+            ({homepage_url = K, HomepageURL}, Opts) ->
+                [{K, to_binary(HomepageURL)} | Opts];
             ({main = K, Main}, Opts) ->
                 FilenameNoExt = filename:rootname(Main),
                 [{K, to_lower_binary(FilenameNoExt)} | Opts];
