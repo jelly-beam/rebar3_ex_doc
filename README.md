@@ -101,16 +101,58 @@ In case you get a warning for something that is working or would like further co
 
 # Development
 
-If you'd like to hack on this plugin follow the steps below :
+If you'd like to hack on this plugin, follow the steps below:
 
-1. You must have at least Elixir 1.13.0 installed to build the `ex_doc` escript
-2. Make a new rebar project or go into an existing project
-3. Make a `_checkouts` dir
-4. cd `_checkouts` and clone this repository
-5. Run `mix escript.build`
-6. cd back to the root of your project
-7. Add `rebar3_ex_doc` as plugin to your `rebar.config`
-8. Run `rebar3 ex_doc` as an initial test
+1. You must have at least Elixir 1.13.0
+   [installed](https://elixir-lang.org/install.html) to build the `ex_doc`
+   escript.
+
+2. Make a new rebar project or go into an existing project:
+
+    ```bash
+    $ rebar3 new myapp
+    $ cd myapp
+    ```
+
+3. Make a `_checkouts` directory:
+
+    ```bash
+    $ mkdir _checkouts
+    ```
+
+4. Go to `_checkouts` and clone this repository to create a
+   [checkout dependency](http://rebar3.org/docs/configuration/dependencies/#checkout-dependencies):
+
+    ```bash
+    $ cd _checkouts
+    $ git clone https://github.com/starbelly/rebar3_ex_doc
+    ```
+
+5. Get all dependencies and build the `ex_doc` console app:
+
+    ```bash
+    $ cd rebar3_ex_doc
+    $ mix deps.get
+    $ mix escript.build
+    ```
+
+6. Go back to the root of your project:
+
+    ```bash
+    $ cd ../..
+    ```
+
+7. Add `rebar3_ex_doc` as plugin to your `rebar.config`:
+
+    ```bash
+    {project_plugins, [rebar3_ex_doc]}.
+    ```
+
+8. Generate documentation as an initial test:
+
+    ```bash
+    $ rebar3 ex_doc
+    ```
 
 ## Copyright and License
 
