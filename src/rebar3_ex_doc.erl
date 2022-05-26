@@ -281,7 +281,7 @@ to_ex_doc_format(ExDocOpts) ->
     ).
 
 to_ex_doc_format_extras(Extras0) ->
-    lists:foldl(
+    lists:foldr(
         fun ({Extra, ExtraOpts}, Extras) ->
                 [{to_atom(Extra), to_ex_doc_format_extras_opts(ExtraOpts)} | Extras];
             (Extra, Extras) when is_list(Extra) ->
