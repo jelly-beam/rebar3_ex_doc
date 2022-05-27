@@ -43,7 +43,7 @@ generate_docs(Config) ->
     ok = make_readme(App),
     ok = make_license(App),
     {ok, _} = rebar3_ex_doc:do(State),
-    check_docs(App).
+    check_docs(App, StubConfig).
 
 generate_docs_alternate_rebar3_config_format(Config) ->
     StubConfig = #{
@@ -67,7 +67,7 @@ generate_docs_alternate_rebar3_config_format(Config) ->
     ok = make_readme(App),
     ok = make_license(App),
     {ok, _} = rebar3_ex_doc:do(State),
-    check_docs(App).
+    check_docs(App, StubConfig).
 
 generate_docs_with_alternate_ex_doc(Config) ->
     Priv = code:priv_dir(rebar3_ex_doc),
@@ -93,7 +93,7 @@ generate_docs_with_alternate_ex_doc(Config) ->
     ok = make_readme(App),
     ok = make_license(App),
     {ok, _} = rebar3_ex_doc:do(State),
-    check_docs(App),
+    check_docs(App, StubConfig),
 
     StubConfig1 = #{
         app_src => #{version => "0.1.0"},
@@ -130,7 +130,7 @@ generate_docs_with_current_app_set(Config) ->
     ok = make_readme(App),
     ok = make_license(App),
     {ok, _} = rebar3_ex_doc:do(State1),
-    check_docs(App).
+    check_docs(App, StubConfig).
 
 generate_docs_with_bad_config(Config) ->
     StubConfig = #{
@@ -170,8 +170,13 @@ format_errors(_) ->
     Err5 = "An unknown error has occurred. Run with DIAGNOSTICS=1 for more details.",
     ?assertEqual(Err5, rebar3_ex_doc:format_error({eh, some_error})).
 
-check_docs(App) ->
+check_docs(App, #{config := {ex_doc, DocConfig}} = _Stub) ->
+    Extras = format_extras(proplists:get_value(extras, DocConfig)),
     AppDir = rebar_app_info:dir(App),
+    BuildDir = filename:join(AppDir, "_build"),
+    {ok, ConfigFile} = file:consult(filename:join([BuildDir, "default/lib/", rebar_app_info:name(App), "doc/docs.config"])),
+    ExpExtras = proplists:get_value(extras, ConfigFile), 
+    ?assertMatch(Extras, ExpExtras),
     AppName = rebar_app_info:name(App),
     AppNameStr = rebar_utils:to_list(AppName),
     DocDir = filename:join(AppDir, "doc"),
@@ -193,6 +198,31 @@ check_docs(App) ->
     ?assertMatch(
         {match, [<<"PLEASE READ ME">>]},
         re:run(EpubReadMe, "PLEASE READ ME", [{capture, [0], binary}])
+    ).
+
+format_extras(Extras0) -> 
+    lists:foldr(
+        fun ({Extra, ExtraOpts}, Extras) ->
+                [{list_to_atom(Extra), format_extras_opts(ExtraOpts)} | Extras];
+            (Extra, Extras) when is_list(Extra) ->
+                [list_to_binary(Extra) | Extras];
+            (OtherExtra, Extras) ->
+                [OtherExtra | Extras]
+        end,
+        [],
+        Extras0
+    ).
+
+format_extras_opts(Extras) ->
+    maps:map(
+        fun (filename, Filename) when is_list(Filename) ->
+                list_to_binary(Filename);
+            (title, Title) when is_list(Title) ->
+                list_to_binary(Title); 
+            (_Key, Value) ->
+                Value
+        end,
+        Extras
     ).
 
 compile_src_file(App) ->
