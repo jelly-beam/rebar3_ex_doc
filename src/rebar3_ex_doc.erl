@@ -140,7 +140,7 @@ compile(State) ->
 -spec gen_chunks(rebar_state:t(), file:filename()) -> {rebar_state:t(), rebar_app_info:t(), file:filename()}.
 gen_chunks(State, App) ->
     OutDir = filename:join(rebar_app_info:out_dir(App), "doc"),
-    EdocOptsFromRebarConfig = lists:keysort(1, rebar_state:get(State, edoc_opts, [])),
+    EdocOptsFromRebarConfig = lists:keysort(1, proplists:unfold(rebar_state:get(State, edoc_opts, []))),
     Prv = providers:get_provider(edoc, rebar_state:providers(State)),
     EdocOptsDefault = lists:keysort(1, [
         {preprocess, true},
