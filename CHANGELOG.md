@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## v0.2.10 [2022-05-30]
+
+  - Switch foldl to foldr to preserve extra pages order (#28)
+  - gen_chunks: unfold edoc_opts from project rebar.config before merging (#25)
+  - Update development guide (#24)
+  - Increase available options, as per rebar3_ex_doc's own usage (#23)
+
 ## v0.2.9 [2022-04-22]
 
  - bump ex_doc to 0.28.3
