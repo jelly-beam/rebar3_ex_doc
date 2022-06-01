@@ -13,10 +13,14 @@ yes_or_exit() {
     done
 }
 
-if [ "${OTP_VER}\n" == "24\n" ]; then
-     echo "You are using Erlang ${OTP_VER} but ex_doc must be built using OTP >= 24 for compatability. Giving up..."
+OTP_VER_STR="${OTP_VER}"
+if [ "${OTP_VER}" != "24" ]; then
+     echo "You are using Erlang/OTP ${OTP_VER_STR}"
+     echo "However, ex_doc must be built using OTP == 24 for compatability. Giving up..."
      exit
 fi
+
+exit
 
 VERSION=$1 
 
@@ -47,8 +51,6 @@ mix escript.build
 
 SIZE=$(ls -lh priv/ex_doc | awk '{print $5}')
 echo "Size of priv/ex_doc : $SIZE"
-
-cd ../..
 
 rebar3 ex_doc
 
