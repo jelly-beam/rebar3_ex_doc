@@ -147,8 +147,6 @@ gen_chunks(State, App) ->
         {doclet, edoc_doclet_chunks},
         {layout, edoc_layout_chunks},
         {dir, OutDir},
-        {private, true},
-        {hidden, true},
         {includes, ["src", "include"]}
     ]),
     EdocOpts = lists:keymerge(1, EdocOptsFromRebarConfig, EdocOptsDefault),
