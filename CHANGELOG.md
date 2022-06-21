@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+ - fix default edoc opts
+
 ## v0.2.10 [2022-05-30]
 
   - Switch foldl to foldr to preserve extra pages order (#28)
@@ -25,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
  - v0.2.7 failed to include priv/ex_doc
 
-## v0.2.7 [2022-01-24] 
+## v0.2.7 [2022-01-24]
 
 - Add the ebin directories of dependencies to the code path using ex_doc's --paths option.
 
@@ -43,7 +45,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   owner and license term of this project.
 - Replaced the Apache2 license with Markdown version instead of plain text
   version to improve readability.
-- Fix misc. Markdown issues to improve readability. 
+- Fix misc. Markdown issues to improve readability.
 - Fixed a bug where by we were not passing the package name to `ex_doc`
 
 ## v0.2.5 [2022-01-11]
@@ -55,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed a bug that prevented generating docs on windows thanks to @cw789 for
   raising the issue and testing the patch (this was actually released in 0.2.4,
   but noting here).
-- Add link to github in hex metadata. 
+- Add link to github in hex metadata.
 
 ## v0.2.3 [2021-12-21]
 
@@ -65,12 +67,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## v0.2.2 [2021-12-21]
 
 - Be specific in README.md where `ex_doc` configuration should be placed.
-- remove rogue "?" from source rev argument. 
+- remove rogue "?" from source rev argument.
 
 ## v0.2.1 [2021-12-21]
 
 - Make `{proglang, erlang}` the default for ex_doc config.
-- Add ourselves (`rebar3_ex_doc`) to hex config for publishing. 
+- Add ourselves (`rebar3_ex_doc`) to hex config for publishing.
 
 
 ## v0.2.0 [2021-12-21]
