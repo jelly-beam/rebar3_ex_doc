@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
- - fix default edoc opts
+## [v0.2.12]
+
+ - fix default edoc opts (#30)
 
 ## v0.2.10 [2022-05-30]
 
