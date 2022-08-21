@@ -4,7 +4,7 @@ defmodule RebarHexDoc.MixProject do
   def project do
     [
       app: :rebar_ex_doc,
-      version: "0.2.12",
+      version: "0.2.13",
       elixir: "~> 1.13",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
