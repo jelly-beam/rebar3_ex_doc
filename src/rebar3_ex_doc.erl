@@ -96,7 +96,7 @@ get_apps(State) ->
                 undefined ->
                     rebar_state:project_apps(State);
                 AppName ->
-                    App = find_app(rebar_state:project_apps(State), AppName),
+                    {ok, App} = find_app(rebar_state:project_apps(State), AppName),
                     [App]
             end;
         AppInfo ->
