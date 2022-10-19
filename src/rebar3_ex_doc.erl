@@ -270,6 +270,8 @@ to_ex_doc_format(ExDocOpts) ->
                 [{K, to_binary(SourceURL)} | Opts];
             ({proglang, _} = V, Opts) -> % internal exception
                 [V | Opts];
+            ({logo, _} = V, Opts) ->
+                [V | Opts];
             (OtherOpt, Opts) ->
                 rebar_api:warn("unknown ex_doc option ~p", [OtherOpt]),
                 [OtherOpt | Opts]
