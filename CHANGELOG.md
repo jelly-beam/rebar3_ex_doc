@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.14]
+
+ - Prevent warnings when passing the "logo" option (#32)
+ - Fix app commandline flag (#31)
+ - bump ex_doc to 0.29.0
+
 ## [v0.2.13]
 
   - bump ex_doc to 0.28.5
