@@ -144,7 +144,7 @@ If you'd like to hack on this plugin, follow the steps below:
 
 7. Add `rebar3_ex_doc` as plugin to your `rebar.config`:
 
-    ```bash
+    ```erlang
     {project_plugins, [rebar3_ex_doc]}.
     ```
 
