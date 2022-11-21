@@ -275,6 +275,8 @@ to_ex_doc_format(ExDocOpts) ->
             ({skip_undefined_reference_warnings_on = K, Skips0}, Opts) ->
                 Skips = [to_binary(Skip) || Skip <- Skips0],
                 [{K, Skips} | Opts];
+            ({output = K, OutputDir}, Opts) ->
+                [{K, to_binary(OutputDir)} | Opts];
             (OtherOpt, Opts) ->
                 rebar_api:warn("unknown ex_doc option ~p", [OtherOpt]),
                 [OtherOpt | Opts]
