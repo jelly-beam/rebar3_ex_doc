@@ -99,6 +99,15 @@ To integrate with `rebar3_hex` merely specify `rebar3_ex_doc` as the doc provide
 Not all `ex_doc` options are supported. This means we'll warn on unknown options, but still pass them to `ex_doc`. We try to make sure the supported options are converted to the format known by `ex_doc`.
 In case you get a warning for something that is working or would like further conversion support, open a [GitHub issue](https://github.com/starbelly/rebar3_ex_doc/issues).
 
+### Extras
+
+ExDoc [extras](https://hexdocs.pm/ex_doc/readme.html#additional-pages) are additional pages of content written in Markdown. When used with `rebar3_ex_doc`, Erlang syntax is supported for auto-link references with ExDoc prefixes (`c:` and `t:`):
+
+* Modules: `module`
+* Functions: `function/1`, `module:function/1`
+* Callbacks: `c:handle_call/3`, `c:gen_server:handle_call/3`
+* Types: `t:nullary_type()`, `t:type_with_parameter/1`
+
 # Development
 
 If you'd like to hack on this plugin, follow the steps below:
@@ -144,7 +153,7 @@ If you'd like to hack on this plugin, follow the steps below:
 
 7. Add `rebar3_ex_doc` as plugin to your `rebar.config`:
 
-    ```bash
+    ```erlang
     {project_plugins, [rebar3_ex_doc]}.
     ```
 
