@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - test-setup-beam
   pull_request:
     types: [opened, synchronize]
 
