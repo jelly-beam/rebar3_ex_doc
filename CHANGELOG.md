@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [v0.2.15]
 
  - bump ex_doc to 0.29.1
+ - Translate 'skip_undefined_reference_warnings_on' ExDoc option
+ - Document auto-link syntax for Erlang extras
+ - add support for the "output" configuration option
 
 ## [v0.2.14]
 
