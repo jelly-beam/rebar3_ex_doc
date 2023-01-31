@@ -70,6 +70,16 @@ For further customization, see the configuration for `rebar3_ex_doc`:
 
 Please see the `ex_doc` [configuration documentation](https://hexdocs.pm/ex_doc/Mix.Tasks.Docs.html#module-configuration) for a complete overview of available configuration directives.
 
+You may also use an external config file by specifying a path instead of a proplist. See `ex_doc --help` for more info.
+
+```erlang
+%% In Elixir format
+{ex_doc, "docs.exs"}.
+
+%% Or in Erlang term, like rebar.config
+{ex_doc, "docs.config"}.
+```
+
 ### Umbrella support
 
 Umbrellas are supported but they must be configured on an app by app basis. This is to avoid publishing documentation to Hex.pm with wrong source urls, logos, etc.

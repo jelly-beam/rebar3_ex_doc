@@ -247,11 +247,16 @@ win32_ex_doc_script(Path) ->
 
 -spec ex_doc_config_file(rebar_app_info:t(), file:filename()) -> file:filename().
 ex_doc_config_file(App, EdocOutDir) ->
-    ExDocOpts0 = ex_doc_opts_defaults(rebar_app_info:get(App, ex_doc, [])),
-    ExDocOpts = to_ex_doc_format(ExDocOpts0),
-    ExDocConfigFile = filename:join([EdocOutDir, "docs.config"]),
-    ok = write_config(ExDocConfigFile, ExDocOpts),
-    ExDocConfigFile.
+    case rebar_app_info:get(App, ex_doc, []) of
+        ExDocOpts0 when ExDocOpts0 =:= [] orelse is_tuple(hd(ExDocOpts0)) orelse is_atom(hd(ExDocOpts0)) ->
+            ExDocOpts1 = ex_doc_opts_defaults(ExDocOpts0),
+            ExDocOpts2 = to_ex_doc_format(ExDocOpts1),
+            ExDocConfigFile = filename:join([EdocOutDir, "docs.config"]),
+            ok = write_config(ExDocConfigFile, ExDocOpts2),
+            ExDocConfigFile;
+        ExDocConfigFile ->
+            ExDocConfigFile
+    end.
 
 to_ex_doc_format(ExDocOpts) ->
     lists:foldl(
