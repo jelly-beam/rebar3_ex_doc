@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.16]
+
+ -  Add support for external config files
+
 ## [v0.2.15]
 
  - bump ex_doc to 0.29.1
