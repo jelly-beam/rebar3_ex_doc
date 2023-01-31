@@ -1,6 +1,6 @@
 {application, rebar3_ex_doc,
  [{description, "rebar3 plugin for generating docs with ex_doc"},
-  {vsn, "0.2.15"},
+  {vsn, "0.2.16"},
   {registered, []},
   {applications,
    [kernel,
