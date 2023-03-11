@@ -187,8 +187,9 @@ make_command_string(State, App, EdocOutDir, Opts) ->
     AppSrcFile = rebar_app_info:app_file_src(App),
     AppSrc = rebar_file_utils:try_consult(AppSrcFile),
     PkgName = proplists:get_value(pkg_name, AppSrc, AppName),
+    ExDocOpts = rebar_app_info:get(App, ex_doc, []),
     Vsn = vcs_vsn(State, App),
-    SourceRefVer = io_lib:format("v~ts", [Vsn]),
+    SourceRefVer = maybe_prefix_with_v(Vsn, ExDocOpts),
     Ebin = rebar_app_info:ebin_dir(App),
     BaseArgs = [
         ex_doc_escript(Opts),
@@ -228,6 +229,14 @@ maybe_package_arg(PkgName, Opts) when Opts =:= []
     end;
 maybe_package_arg(_, _) ->
     [].
+
+maybe_prefix_with_v(Vsn, Opts) ->
+    case proplists:get_value(prefix_ref_vsn_with_v, Opts, true) of
+        true ->
+            io_lib:format("v~ts", [Vsn]);
+        false ->
+            Vsn
+    end.
 
 ex_doc_escript(Opts) ->
     ExDoc = ex_doc_script_path(Opts),
@@ -292,6 +301,8 @@ to_ex_doc_format(ExDocOpts) ->
                 [{K, Skips} | Opts];
             ({output = K, OutputDir}, Opts) ->
                 [{K, to_binary(OutputDir)} | Opts];
+            ({prefix_ref_vsn_with_v, _}, Opts) ->
+                Opts;
             (OtherOpt, Opts) ->
                 rebar_api:warn("unknown ex_doc option ~p", [OtherOpt]),
                 [OtherOpt | Opts]

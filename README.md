@@ -125,6 +125,22 @@ If you wish to generate documentation outside the context of a package you may s
 Not all `ex_doc` options are supported. This means we'll warn on unknown options, but still pass them to `ex_doc`. We try to make sure the supported options are converted to the format known by `ex_doc`.
 In case you get a warning for something that is working or would like further conversion support, open a [GitHub issue](https://github.com/starbelly/rebar3_ex_doc/issues).
 
+### Additional options
+
+#### v prefix for source ref versions
+
+By default rebar3_ex_doc adopts the convention of prefixing versions with `v`.
+If your project doesn't followthis convention you may opt out of it with `{prefix_ref_vsn_with_v, false}`
+
+```erlang
+{ex_doc, [
+     {prefix_ref_vsn_with_v, false},
+     {extras, ["README.md", "LICENSE"]},
+     {main, "README.md"},
+     {source_url, "https://github.com/namespace/your_app"}
+]}.
+```
+
 ### Extras
 
 ExDoc [extras](https://hexdocs.pm/ex_doc/readme.html#additional-pages) are additional pages of content written in Markdown. When used with `rebar3_ex_doc`, Erlang syntax is supported for auto-link references with ExDoc prefixes (`c:` and `t:`):
