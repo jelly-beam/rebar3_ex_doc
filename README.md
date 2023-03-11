@@ -104,6 +104,22 @@ To integrate with `rebar3_hex` merely specify `rebar3_ex_doc` as the doc provide
 ]}.
 ```
 
+#### packages
+
+rebar3_ex_doc optimizes for applications intended to be published to [hex.pm](https://hex.pm) such that
+the application name is passed to ex_doc by default as the value to the package option.
+
+If you wish to generate documentation outside the context of a package you may specify `{package, false}` in the options :
+
+```erlang
+{ex_doc, [
+     {package, false},
+     {extras, ["README.md", "LICENSE"]},
+     {main, "README.md"},
+     {source_url, "https://github.com/namespace/your_app"}
+]}.
+```
+
 ### Supported options
 
 Not all `ex_doc` options are supported. This means we'll warn on unknown options, but still pass them to `ex_doc`. We try to make sure the supported options are converted to the format known by `ex_doc`.
