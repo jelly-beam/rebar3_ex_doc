@@ -195,8 +195,6 @@ make_command_string(State, App, EdocOutDir, Opts) ->
         AppName,
         Vsn,
         Ebin,
-        "--package",
-        rebar_utils:to_list(PkgName),
         "--source-ref",
         SourceRefVer,
         "--config",
@@ -204,7 +202,7 @@ make_command_string(State, App, EdocOutDir, Opts) ->
         "--output",
         output_dir(App, Opts),
         "--quiet"
-    ],
+    ] ++ maybe_package_arg(PkgName, rebar_app_info:get(App, ex_doc, [])),
     DepPaths = rebar_state:code_paths(State, all_deps),
     PathArgs = lists:foldl(
         fun(Path, Args) -> ["--paths", Path | Args] end,
@@ -218,6 +216,18 @@ make_command_string(State, App, EdocOutDir, Opts) ->
         Optionals
     ),
     string:join(CommandArgs, " ").
+
+maybe_package_arg(PkgName, Opts) when Opts =:= []
+                                      orelse is_tuple(hd(Opts))
+                                      orelse is_atom(hd(Opts)) ->
+    case proplists:get_value(package, Opts, true) of
+        true ->
+            ["--package", rebar_utils:to_list(PkgName)];
+        false ->
+            []
+    end;
+maybe_package_arg(_, _) ->
+    [].
 
 ex_doc_escript(Opts) ->
     ExDoc = ex_doc_script_path(Opts),
