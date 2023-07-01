@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.17]
+
+* Allow generation of docs outside the context of a package (#45)
+* Provide option to opt of out of prefixing source vsn with v (#46)
+
 ## [v0.2.16]
 
  -  Add support for external config files
