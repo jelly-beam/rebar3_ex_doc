@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.18]
+
+* Update ex_doc to v0.29.4
+
 ## [v0.2.17]
 
 * Allow generation of docs outside the context of a package (#45)
