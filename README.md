@@ -141,6 +141,10 @@ If your project doesn't followthis convention you may opt out of it with `{prefi
 ]}.
 ```
 
+### Examples
+
+Check out our [examples](examples) directory in this repository for working project examples.
+
 ### Extras
 
 ExDoc [extras](https://hexdocs.pm/ex_doc/readme.html#additional-pages) are additional pages of content written in Markdown. When used with `rebar3_ex_doc`, Erlang syntax is supported for auto-link references with ExDoc prefixes (`c:` and `t:`):
