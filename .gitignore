@@ -37,6 +37,7 @@ _*
 ebin
 log
 erl_crash.dump
+rebar3.crashdump
 .rebar
 _rel
 _deps
