@@ -296,6 +296,10 @@ to_ex_doc_format(ExDocOpts) ->
                 [V | Opts];
             ({logo, _} = V, Opts) ->
                 [V | Opts];
+            ({before_closing_body_tag, _} = V, Opts) ->
+                [V | Opts];
+            ({before_closing_head_tag, _} = V, Opts) ->
+                [V | Opts];
             ({skip_undefined_reference_warnings_on = K, Skips0}, Opts) ->
                 Skips = [to_binary(Skip) || Skip <- Skips0],
                 [{K, Skips} | Opts];
