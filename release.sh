@@ -47,7 +47,7 @@ git checkout "v${VERSION}"
 mix deps.get
 mix escript.build
 
-SIZE=$(ls -lh priv/ex_doc | awk '{print $5}')
+SIZE=$(du -ah priv/ex_doc | awk '{print $1}')
 echo "Size of priv/ex_doc : $SIZE"
 
 rebar3 ex_doc
