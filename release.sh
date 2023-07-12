@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 OTP_RAW_VER=$(erl -eval 'erlang:display(erlang:system_info(otp_release)), halt().'  -noshell)
-OTP_VER=$(echo ${OTP_RAW_VER} | sed -r 's/\"([0-9]+)\"/\1/g' | sed 's/[^0-9]*//g')
+OTP_VER=$(echo "${OTP_RAW_VER}" | sed -r 's/\"([0-9]+)\"/\1/g' | sed 's/[^0-9]*//g')
 
 yes_or_exit() {
     while true; do
