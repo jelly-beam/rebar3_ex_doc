@@ -15,7 +15,7 @@ yes_or_exit() {
 }
 
 if [ "${OTP_VER}" != "24" ]; then
-     echo "You are using Erlang/OTP ${OTP_VER_STR}"
+     echo "You are using Erlang/OTP ${OTP_VER}"
      echo "However, ex_doc must be built using OTP == 24 for compatability. Giving up..."
      exit
 fi
