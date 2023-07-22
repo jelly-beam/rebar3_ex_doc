@@ -17,6 +17,7 @@
 
 -define(DEFAULT_DOC_DIR, "doc").
 -define(DEFAULT_DOC_LANG, "en").
+-define(DEFAULT_MERMAID_VSN, "10.2.4").
 
 %% ===================================================================
 %% Public API
@@ -77,6 +78,9 @@ format_error({write_config, Err}) ->
 format_error({unsupported_otp, Ver}) ->
     Str = "You are using erlang/OTP '~ts', but this plugin requires at least erlang/OTP 24.",
     io_lib:format(Str, [integer_to_list(Ver)]);
+format_error({mermaid_vsn_not_string, Vsn}) ->
+    Str = "ex_doc option 'with_mermaid' should be 'true', 'false', or string(). Got: ~p",
+    io_lib:format(Str, [Vsn]);
 format_error({ex_doc, _}) ->
     "";
 format_error(Err) ->
@@ -307,6 +311,8 @@ to_ex_doc_format(ExDocOpts) ->
                 [{K, to_binary(OutputDir)} | Opts];
             ({prefix_ref_vsn_with_v, _}, Opts) ->
                 Opts;
+            ({with_mermaid, Vsn}, Opts) ->
+                Opts ++ mermaid_add(Vsn);
             (OtherOpt, Opts) ->
                 rebar_api:warn("unknown ex_doc option ~p", [OtherOpt]),
                 [OtherOpt | Opts]
@@ -490,3 +496,15 @@ help(language) ->
 help(logo) ->
     "Path to the image logo of the project (only PNG or JPEG accepted)."
     "The image size will be 64x64 and copied to the assets directory.".
+
+% Mermaid support
+mermaid_add(false) ->
+  "";
+mermaid_add(true) ->
+  mermaid_add(?DEFAULT_MERMAID_VSN);
+mermaid_add(Vsn) when is_list(Vsn) ->
+    [{before_closing_head_tag, #{
+        html => "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@" ++ Vsn ++ "/dist/mermaid.min.js\" />"
+    }}];
+mermaid_add(Vsn) ->
+    ?RAISE({mermaid_vsn_not_string, Vsn}).

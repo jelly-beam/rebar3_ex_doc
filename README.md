@@ -127,6 +127,35 @@ In case you get a warning for something that is working or would like further co
 
 ### Additional options
 
+#### Support for Mermaid
+
+Out-of-the-box support for [Mermaid](https://mermaid.js.org/) is provided via `rebar.config` option
+`with_mermaid`, as follows:
+
+```erlang
+{ex_doc, [
+     {with_mermaid, true}
+]}.
+```
+
+or
+
+```erlang
+{ex_doc, [
+     {with_mermaid, "10.2.4"}
+]}.
+```
+
+Check out what this looks like in `doc/index.html`.
+
+```mermaid
+graph TD;
+    A-->B;
+    A-->C;
+    B-->D;
+    C-->D;
+```
+
 #### v prefix for source ref versions
 
 By default rebar3_ex_doc adopts the convention of prefixing versions with `v`.
