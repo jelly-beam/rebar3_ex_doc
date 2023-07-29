@@ -23,7 +23,7 @@ defmodule RebarHexDoc.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.29.4"}
+      {:ex_doc, "~> 0.30.3"}
     ]
   end
 end
