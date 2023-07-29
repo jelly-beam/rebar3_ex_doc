@@ -39,7 +39,7 @@ init(State) ->
                 {app, $a, "app", string, help(app)},
                 {ex_doc, $e, "ex_doc", string, help(ex_doc)},
                 {canonical, $n, "canonical", string, help(canonical)},
-                {output, $o, "output", {string, ?DEFAULT_DOC_DIR}, help(output)},
+                {output, $o, "output", {atom, undefined}, help(output)},
                 {language, undefined, "language", {string, ?DEFAULT_DOC_LANG}, help(language)},
                 {logo, $l, "logo", string, help(logo)},
                 {formatter, $f, "formatter", string, help(formatter)}
@@ -204,10 +204,8 @@ make_command_string(State, App, EdocOutDir, Opts) ->
         SourceRefVer,
         "--config",
         ex_doc_config_file(App, EdocOutDir),
-        "--output",
-        output_dir(App, Opts),
         "--quiet"
-    ] ++ maybe_package_arg(PkgName, rebar_app_info:get(App, ex_doc, [])),
+    ] ++ maybe_add_output_dir(App, Opts) ++ maybe_package_arg(PkgName, rebar_app_info:get(App, ex_doc, [])),
     DepPaths = rebar_state:code_paths(State, all_deps),
     PathArgs = lists:foldl(
         fun(Path, Args) -> ["--paths", Path | Args] end,
@@ -221,6 +219,16 @@ make_command_string(State, App, EdocOutDir, Opts) ->
         Optionals
     ),
     string:join(CommandArgs, " ").
+
+maybe_add_output_dir(App, Opts) ->
+    case {proplists:get_value(output, Opts, undefined), get_exdoc_opt(App, output)} of
+        {undefined, undefined} ->
+            ["--output", output_dir(App, ?DEFAULT_DOC_DIR)];
+        {OutputDir, _} when OutputDir =/= undefined ->
+            ["--output", output_dir(App, OutputDir)];
+        {undefined, Specified}  ->
+            ["--output", output_dir(App, Specified)]
+    end.
 
 maybe_package_arg(PkgName, Opts) when Opts =:= []
                                       orelse is_tuple(hd(Opts))
@@ -270,15 +278,30 @@ win32_ex_doc_script(Path) ->
 
 -spec ex_doc_config_file(rebar_app_info:t(), file:filename()) -> file:filename().
 ex_doc_config_file(App, EdocOutDir) ->
+    case  get_exdoc_opts(App) of
+        {config_file, FilePath} ->
+            FilePath;
+        Opts ->
+            ExDocOpts = to_ex_doc_format(Opts),
+            ExDocConfigFile = filename:join([EdocOutDir, "docs.config"]),
+            ok = write_config(ExDocConfigFile, ExDocOpts),
+            ExDocConfigFile
+    end.
+
+get_exdoc_opts(App) ->
     case rebar_app_info:get(App, ex_doc, []) of
         ExDocOpts0 when ExDocOpts0 =:= [] orelse is_tuple(hd(ExDocOpts0)) orelse is_atom(hd(ExDocOpts0)) ->
-            ExDocOpts1 = ex_doc_opts_defaults(ExDocOpts0),
-            ExDocOpts2 = to_ex_doc_format(ExDocOpts1),
-            ExDocConfigFile = filename:join([EdocOutDir, "docs.config"]),
-            ok = write_config(ExDocConfigFile, ExDocOpts2),
-            ExDocConfigFile;
+            ex_doc_opts_defaults(ExDocOpts0);
         ExDocConfigFile ->
-            ExDocConfigFile
+            {config_file, ExDocConfigFile}
+    end.
+
+get_exdoc_opt(App, OptName) ->
+    case get_exdoc_opts(App) of
+        {config_file, _} ->
+            undefined;
+        Opts ->
+            proplists:get_value(OptName, Opts, undefined)
     end.
 
 to_ex_doc_format(ExDocOpts) ->
@@ -400,9 +423,8 @@ maybe_add_opt(logo, Opts) ->
             ["--logo", Logo]
     end.
 
--spec output_dir(rebar_app_info:t(), proplists:proplist()) -> file:filename().
-output_dir(App, Opts) ->
-    Dir = proplists:get_value(output, Opts, ?DEFAULT_DOC_DIR),
+-spec output_dir(any(), file:filename()) -> file:filename().
+output_dir(App, Dir) ->
     filename:join(rebar_app_info:dir(App), Dir).
 
 -spec write_config(file:filename(), proplists:proplist()) -> ok.
