@@ -39,7 +39,7 @@ init(State) ->
                 {app, $a, "app", string, help(app)},
                 {ex_doc, $e, "ex_doc", string, help(ex_doc)},
                 {canonical, $n, "canonical", string, help(canonical)},
-                {output, $o, "output", {atom, undefined}, help(output)},
+                {output, $o, "output", {string, ?DEFAULT_DOC_DIR}, help(output)},
                 {language, undefined, "language", {string, ?DEFAULT_DOC_LANG}, help(language)},
                 {logo, $l, "logo", string, help(logo)},
                 {formatter, $f, "formatter", string, help(formatter)}
@@ -170,7 +170,10 @@ gen_chunks(State, App) ->
 ex_doc(State, App, EdocOutDir) ->
     AppName = rebar_utils:to_list(rebar_app_info:name(App)),
     {Opts, _Args} = rebar_state:command_parsed_args(State),
-    CommandStr = make_command_string(State, App, EdocOutDir, Opts),
+    % We replace output default ( "doc" ), with undefined here to keep decision logic for which output
+    % value to use later simple (i.e., output provided on CLI or in config).
+    Opts1 = lists:map(fun ({output, "doc"}) -> {output, undefined}; (Prop) -> Prop end, Opts),
+    CommandStr = make_command_string(State, App, EdocOutDir, Opts1),
     rebar_api:info("Running ex_doc for ~ts", [AppName]),
     case rebar_utils:sh(CommandStr, [{return_on_error, true}]) of
         {ok, []} ->
