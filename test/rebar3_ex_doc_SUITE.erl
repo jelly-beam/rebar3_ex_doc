@@ -11,6 +11,8 @@ all() ->
         generate_docs_with_current_app_set,
         generate_docs_with_bad_config,
         generate_docs_with_alternate_ex_doc,
+        generate_docs_with_output_set_in_config,
+        generate_docs_overriding_output_set_in_config,
         format_errors
     ].
 
@@ -43,7 +45,7 @@ generate_docs(Config) ->
     ok = make_readme(App),
     ok = make_license(App),
     {ok, _} = rebar3_ex_doc:do(State),
-    check_docs(App, StubConfig).
+    check_docs(App, State, StubConfig).
 
 generate_docs_alternate_rebar3_config_format(Config) ->
     StubConfig = #{
@@ -67,7 +69,7 @@ generate_docs_alternate_rebar3_config_format(Config) ->
     ok = make_readme(App),
     ok = make_license(App),
     {ok, _} = rebar3_ex_doc:do(State),
-    check_docs(App, StubConfig).
+    check_docs(App, State, StubConfig).
 
 generate_docs_with_alternate_ex_doc(Config) ->
     Priv = code:priv_dir(rebar3_ex_doc),
@@ -93,7 +95,7 @@ generate_docs_with_alternate_ex_doc(Config) ->
     ok = make_readme(App),
     ok = make_license(App),
     {ok, _} = rebar3_ex_doc:do(State),
-    check_docs(App, StubConfig),
+    check_docs(App, State, StubConfig),
 
     StubConfig1 = #{
         app_src => #{version => "0.1.0"},
@@ -130,7 +132,7 @@ generate_docs_with_current_app_set(Config) ->
     ok = make_readme(App),
     ok = make_license(App),
     {ok, _} = rebar3_ex_doc:do(State1),
-    check_docs(App, StubConfig).
+    check_docs(App, State, StubConfig).
 
 generate_docs_with_bad_config(Config) ->
     StubConfig = #{
@@ -148,6 +150,47 @@ generate_docs_with_bad_config(Config) ->
     ok = make_readme(App),
     ok = make_license(App),
     ?assertError({error, {rebar3_ex_doc, {ex_doc, _}}}, rebar3_ex_doc:do(State)).
+
+generate_docs_with_output_set_in_config(Config) ->
+    StubConfig = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        name => "output_set_in_config_docs",
+        config =>
+            {ex_doc, [
+                {source_url, <<"https://github.com/eh/eh">>},
+                {extras, [<<"README.md">>, <<"LICENSE">>]},
+                {main, <<"readme">>},
+                {output, "foo_docs"}
+            ]}
+    },
+    {State, App} = make_stub(StubConfig),
+
+    ok = make_readme(App),
+    ok = make_license(App),
+    {ok, _} = rebar3_ex_doc:do(State),
+    check_docs(App, State, StubConfig).
+
+generate_docs_overriding_output_set_in_config(Config) ->
+    StubConfig = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        args => "--output bar_docs",
+        name => "override_output_set_in_config_docs",
+        config =>
+            {ex_doc, [
+                {source_url, <<"https://github.com/eh/eh">>},
+                {extras, [<<"README.md">>, <<"LICENSE">>]},
+                {main, <<"readme">>},
+                {output, "foo_docs"}
+            ]}
+    },
+    {State, App} = make_stub(StubConfig),
+
+    ok = make_readme(App),
+    ok = make_license(App),
+    {ok, _} = rebar3_ex_doc:do(State),
+    check_docs(App, State, StubConfig).
 
 format_errors(_) ->
     Err = "The app 'foo' specified was not found.",
@@ -170,16 +213,17 @@ format_errors(_) ->
     Err5 = "An unknown error has occurred. Run with DIAGNOSTICS=1 for more details.",
     ?assertEqual(Err5, rebar3_ex_doc:format_error({eh, some_error})).
 
-check_docs(App, #{config := {ex_doc, DocConfig}} = _Stub) ->
+check_docs(App, State, #{config := {ex_doc, DocConfig}} = _Stub) ->
     Extras = format_extras(proplists:get_value(extras, DocConfig)),
     AppDir = rebar_app_info:dir(App),
     BuildDir = filename:join(AppDir, "_build"),
     {ok, ConfigFile} = file:consult(filename:join([BuildDir, "default/lib/", rebar_app_info:name(App), "doc/docs.config"])),
-    ExpExtras = proplists:get_value(extras, ConfigFile), 
+    ExpExtras = proplists:get_value(extras, ConfigFile),
     ?assertMatch(Extras, ExpExtras),
     AppName = rebar_app_info:name(App),
     AppNameStr = rebar_utils:to_list(AppName),
-    DocDir = filename:join(AppDir, "doc"),
+    {Opts, _Args} = rebar_state:command_parsed_args(State),
+    DocDir = filename:join(AppDir, get_doc_dir(Opts, DocConfig)),
     {ok, IndexDoc} = file:read_file(filename:join(DocDir, "index.html")),
     {ok, ModuleDoc} = file:read_file(filename:join(DocDir, AppNameStr ++ ".html")),
     {ok, ReadMeDoc} = file:read_file(filename:join(DocDir, "readme.html")),
@@ -200,7 +244,15 @@ check_docs(App, #{config := {ex_doc, DocConfig}} = _Stub) ->
         re:run(EpubReadMe, "PLEASE READ ME", [{capture, [0], binary}])
     ).
 
-format_extras(Extras0) -> 
+get_doc_dir(Opts, DocConfig) ->
+    case proplists:get_value(output, Opts, proplists:get_value(output, DocConfig, "doc")) of
+        undefined ->
+            "doc";
+        Doc ->
+            Doc
+    end.
+
+format_extras(Extras0) ->
     lists:foldr(
         fun ({Extra, ExtraOpts}, Extras) ->
                 [{list_to_atom(Extra), format_extras_opts(ExtraOpts)} | Extras];
@@ -218,7 +270,7 @@ format_extras_opts(Extras) ->
         fun (filename, Filename) when is_list(Filename) ->
                 list_to_binary(Filename);
             (title, Title) when is_list(Title) ->
-                list_to_binary(Title); 
+                list_to_binary(Title);
             (_Key, Value) ->
                 Value
         end,
