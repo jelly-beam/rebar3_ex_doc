@@ -504,7 +504,7 @@ cmd_vsn_invoke(Cmd, Dir) ->
 help(app) ->
     "Specify which app to generate docs for within an umbrella project.";
 help(ex_doc) ->
-    "Specifiy a path to an alternate version of ex_doc on your system (e.g., /path/to/ex_doc).";
+    "Specify a path to an alternate version of ex_doc on your system (e.g., /path/to/ex_doc).";
 help(canonical) ->
     "Indicate the preferred URL with rel=\"canonical\" link element,"
     "defaults to no canonical path.";

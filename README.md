@@ -159,7 +159,7 @@ graph TD;
 #### v prefix for source ref versions
 
 By default rebar3_ex_doc adopts the convention of prefixing versions with `v`.
-If your project doesn't followthis convention you may opt out of it with `{prefix_ref_vsn_with_v, false}`
+If your project doesn't follow this convention you may opt out of it with `{prefix_ref_vsn_with_v, false}`
 
 ```erlang
 {ex_doc, [
@@ -194,36 +194,36 @@ If you'd like to hack on this plugin, follow the steps below:
 2. Make a new rebar project or go into an existing project:
 
     ```bash
-    $ rebar3 new myapp
-    $ cd myapp
+    rebar3 new myapp
+    cd myapp
     ```
 
 3. Make a `_checkouts` directory:
 
     ```bash
-    $ mkdir _checkouts
+    mkdir _checkouts
     ```
 
 4. Go to `_checkouts` and clone this repository to create a
    [checkout dependency](http://rebar3.org/docs/configuration/dependencies/#checkout-dependencies):
 
     ```bash
-    $ cd _checkouts
-    $ git clone https://github.com/starbelly/rebar3_ex_doc
+    cd _checkouts
+    git clone https://github.com/starbelly/rebar3_ex_doc
     ```
 
 5. Get all dependencies and build the `ex_doc` console app:
 
     ```bash
-    $ cd rebar3_ex_doc
-    $ mix deps.get
-    $ mix escript.build
+    cd rebar3_ex_doc
+    mix deps.get
+    mix escript.build
     ```
 
 6. Go back to the root of your project:
 
     ```bash
-    $ cd ../..
+    cd ../..
     ```
 
 7. Add `rebar3_ex_doc` as plugin to your `rebar.config`:
@@ -235,7 +235,7 @@ If you'd like to hack on this plugin, follow the steps below:
 8. Generate documentation as an initial test:
 
     ```bash
-    $ rebar3 ex_doc
+    rebar3 ex_doc
     ```
 
 ## Copyright and License
