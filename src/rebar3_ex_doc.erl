@@ -528,8 +528,29 @@ mermaid_add(false) ->
 mermaid_add(true) ->
   mermaid_add(?DEFAULT_MERMAID_VSN);
 mermaid_add(Vsn) when is_list(Vsn) ->
-    [{before_closing_head_tag, #{
-        html => "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@" ++ Vsn ++ "/dist/mermaid.min.js\" />"
+    [{before_closing_body_tag, #{
+        html => "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@" ++ Vsn ++ "/dist/mermaid.min.js\" />
+                 <script>
+                   document.addEventListener(\"DOMContentLoaded\", function () {
+                     mermaid.initialize({
+                       startOnLoad: false,
+                       theme: document.body.className.includes(\"dark\") ? \"dark\" : \"default\"
+                     });
+                     let id = 0;
+                     for (const codeEl of document.querySelectorAll(\"pre code.mermaid\")) {
+                       const preEl = codeEl.parentElement;
+                       const graphDefinition = codeEl.textContent;
+                       const graphEl = document.createElement(\"div\");
+                       const graphId = \"mermaid-graph-\" + id++;
+                       mermaid.render(graphId, graphDefinition).then(({svg, bindFunctions}) => {
+                         graphEl.innerHTML = svg;
+                         bindFunctions?.(graphEl);
+                         preEl.insertAdjacentElement(\"afterend\", graphEl);
+                         preEl.remove();
+                       });
+                     }
+                   });
+                 </script>"
     }}];
 mermaid_add(Vsn) ->
     ?RAISE({mermaid_vsn_not_string, Vsn}).
