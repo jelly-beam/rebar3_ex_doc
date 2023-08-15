@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.20]
+
+- Bump ex_doc to 0.30.5
+- Minor doc changes (#61)
+- Fix rendering issues when mermaid is used (#59)
+
+
 ## [v0.2.19]
 
 * Fix negation behaviour of output param in config (#56)
