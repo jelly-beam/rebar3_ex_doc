@@ -537,8 +537,7 @@ mermaid_add(true) ->
   mermaid_add(?DEFAULT_MERMAID_VSN);
 mermaid_add(Vsn) when is_list(Vsn) ->
     [{before_closing_body_tag, #{
-        html => "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@" ++ Vsn ++ "/dist/mermaid.min.js\"></script>
-                <script>
+        html => "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@" ++ Vsn ++ "/dist/mermaid.min.js\"></script>                <script>
                    document.addEventListener(\"DOMContentLoaded\", function () {
                     mermaid.initialize({
                        startOnLoad: false,
