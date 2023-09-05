@@ -1,0 +1,31 @@
+---
+name: ex_doc_version_check
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight
+
+
+jobs:
+  test:
+    name: Check ex_doc version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Get current version
+        run: |
+            CURR=`curl -s https://api.github.com/repos/elixir-lang/ex_doc/tags | \
+                  grep "\"name\":" | \
+                  sort --reverse | \
+                  head -n 1 | \
+                  awk '{print substr($2, 2, length($2)-3)}'`
+            TITLE="\`ex_doc\` ${CURR} released"
+            ISSUE_EXISTS=`curl -s https://api.github.com/repos/starbelly/rebar3_ex_doc/issues | grep -c "\"title\": \"${TITLE}\""`
+
+            if [ ${ISSUE_EXISTS} -ne 0 ]
+            then
+              RESP=`curl -L \
+                -X POST \
+                https://api.github.com/repos/starbelly/rebar3_ex_doc/issues \
+                -d '{"title":"${TITLE}","body":"This is an automated report."}'`
+              echo ${RESP}
+            fi
