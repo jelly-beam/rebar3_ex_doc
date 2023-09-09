@@ -1,29 +1,14 @@
-defmodule RebarHexDoc.MixProject do
+defmodule Rebar3ExDoc.MixProject do
   use Mix.Project
-
+  @ex_doc_version "0.30.5"
   def project do
     [
-      app: :rebar_ex_doc,
+      app: :rebar3_ex_doc,
       version: "0.2.20",
       elixir: "~> 1.13",
-      start_permanent: Mix.env() == :prod,
-      deps: deps(),
+      deps: [ex_doc: "~> #{@ex_doc_version}"],
       escript: [main_module: ExDoc.CLI, name: "ex_doc", path: "priv/ex_doc"],
-      # The main page in the docs
       docs: [main: "readme", extras: ["README.md"]]
-    ]
-  end
-
-  # Run "mix help compile.app" to learn about applications.
-  def application do
-    [
-      extra_applications: []
-    ]
-  end
-
-  defp deps do
-    [
-      {:ex_doc, "~> 0.30.5"}
     ]
   end
 end
