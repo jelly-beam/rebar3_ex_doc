@@ -13,19 +13,19 @@ jobs:
       - uses: actions/checkout@v2
       - name: Get current version
         run: |
-            CURR=`curl -s https://api.github.com/repos/elixir-lang/ex_doc/tags | \
+            CURR=`curl -s https://api.github.com/repos/elixir-lang/ex_doc/tags?per_page=100 | \
                   grep "\"name\":" | \
                   sort --reverse | \
                   head -n 1 | \
                   awk '{print substr($2, 2, length($2)-3)}'`
             TITLE="\`ex_doc\` ${CURR} released"
-            ISSUE_EXISTS=`curl -s https://api.github.com/repos/starbelly/rebar3_ex_doc/issues | grep -c "\"title\": \"${TITLE}\""`
+            ISSUE_EXISTS=`curl -s https://api.github.com/repos/starbelly/rebar3_ex_doc/issues?state=all&labels=ex_doc_version_check | grep -c "\"title\": \"${TITLE}\""`
 
             if [ ${ISSUE_EXISTS} -ne 0 ]
             then
               RESP=`curl -L \
                 -X POST \
                 https://api.github.com/repos/starbelly/rebar3_ex_doc/issues \
-                -d '{"title":"${TITLE}","body":"This is an automated report."}'`
+                -d '{"title":"${TITLE}","body":"This is an automated report.","labels":["ex_doc_version_check"]}'`
               echo ${RESP}
             fi
