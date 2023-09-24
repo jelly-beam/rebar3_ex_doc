@@ -1,16 +1,21 @@
-defmodule UpExDocVersion do
+defmodule Mix.Tasks.UpExDocVersion do
+  use Mix.Task
+
+  @shortdoc "Update mix.exs' ex_doc version"
   @mix_exs "mix.exs"
 
-  def up(new_vsn) do
+  def run([new_vsn]) do
     content_up =
       @mix_exs
       |> File.read!()
-      |> up(new_vsn)
+      |> run(new_vsn)
 
     File.write!(@mix_exs, "#{content_up}\n")
+    Mix.Task.run("deps.unlock", ["ex_doc"])
+    Mix.Task.run("deps.get")
   end
 
-  defp up(mix_exs, new_vsn) do
+  defp run(mix_exs, new_vsn) do
     mix_exs
     |> Code.string_to_quoted!()
     |> Macro.prewalk(fn
@@ -23,6 +28,3 @@ defmodule UpExDocVersion do
     |> Macro.to_string()
   end
 end
-
-[new_vsn] = System.argv()
-:ok = UpExDocVersion.up(new_vsn)
