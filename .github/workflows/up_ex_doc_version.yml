@@ -17,13 +17,33 @@ jobs:
             CURR=`curl -s https://hex.pm/api/packages/ex_doc | jq -r '.latest_stable_version' \
                   jq -r ".[0].name"
             TITLE="\`ex_doc\` ${CURR} released"
-            ISSUE_EXISTS=`curl -s https://api.github.com/repos/starbelly/rebar3_ex_doc/issues?state=all&labels=ex_doc_version_check | grep -c "\"title\": \"${TITLE}\""`
+            PR_EXISTS=`curl -s https://api.github.com/repos/starbelly/rebar3_ex_doc/pulls?state=all%26per_page=100 | grep -c "\"title\": \"${TITLE}\""`
 
-            if [ ${ISSUE_EXISTS} -ne 0 ]
+            if [ ${PR_EXISTS} -ne 0 ]
             then
-              RESP=`curl -L \
-                -X POST \
-                https://api.github.com/repos/starbelly/rebar3_ex_doc/issues \
-                -d '{"title":"${TITLE}","body":"This is an automated report.","labels":["ex_doc_version_check"]}'`
-              echo ${RESP}
+              git config user.name "GitHub Actions"
+              git config user.email "actions@user.noreply.github.com"
+
+              BRANCH="up_ex_doc_to_${CURR}"
+
+              if git branch -a | grep "$BRANCH" > /dev/null; then
+                  # already exists
+                  exit
+              fi
+
+              git fetch origin
+              git checkout -b "$BRANCH"
+              mix compile
+              mix up_ex_doc_version "${CURR}"
+
+              if ! git diff --exit-code 1> /dev/null ; then
+                  # there's stuff to push
+                  git add .
+                  git commit -m "Update ex_doc version"
+                  git push origin "$BRANCH"
+
+                  gh pr create --fill \
+                      --title "Update ex_dpc version (automation)" \
+                      --body "This is an automated action to update ex_doc version"
+              fi
             fi
