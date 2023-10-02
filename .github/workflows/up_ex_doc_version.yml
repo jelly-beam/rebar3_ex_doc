@@ -1,5 +1,5 @@
 ---
-name: ex_doc_version_check
+name: up_ex_doc_version
 on:
   schedule:
     - cron: '0 0 * * *'  # Run daily at midnight
@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    name: Check ex_doc version
+    name: Update ex_doc version
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
