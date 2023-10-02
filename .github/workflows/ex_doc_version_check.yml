@@ -15,10 +15,7 @@ jobs:
       - name: Get current version
         run: |
             CURR=`curl -s https://hex.pm/api/packages/ex_doc | jq -r '.latest_stable_version' \
-                  grep "\"name\":" | \
-                  sort --reverse | \
-                  head -n 1 | \
-                  awk '{print substr($2, 2, length($2)-3)}'`
+                  jq -r ".[0].name"
             TITLE="\`ex_doc\` ${CURR} released"
             ISSUE_EXISTS=`curl -s https://api.github.com/repos/starbelly/rebar3_ex_doc/issues?state=all&labels=ex_doc_version_check | grep -c "\"title\": \"${TITLE}\""`
 
