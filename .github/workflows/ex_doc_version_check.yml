@@ -3,17 +3,18 @@ name: ex_doc_version_check
 on:
   schedule:
     - cron: '0 0 * * *'  # Run daily at midnight
-
+  workflow_dispatch:
+  
 
 jobs:
   test:
     name: Check ex_doc version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Get current version
         run: |
-            CURR=`curl -s https://api.github.com/repos/elixir-lang/ex_doc/tags?per_page=100 | \
+            CURR=`curl -s https://hex.pm/api/packages/ex_doc | jq -r '.latest_stable_version' \
                   grep "\"name\":" | \
                   sort --reverse | \
                   head -n 1 | \
