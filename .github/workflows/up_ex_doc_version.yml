@@ -12,38 +12,52 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Get current version
-        run: |
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: 24
+          elixir-version: 1.13
+      - run: |
             CURR=`curl -s https://hex.pm/api/packages/ex_doc | jq -r '.latest_stable_version' \
                   jq -r ".[0].name"
-            TITLE="\`ex_doc\` ${CURR} released"
-            PR_EXISTS=`curl -s https://api.github.com/repos/starbelly/rebar3_ex_doc/pulls?state=all%26per_page=100 | grep -c "\"title\": \"${TITLE}\""`
+            TITLE="[automation] Update \`ex_doc\` to ${CURR}"
+            PR=$(curl -s https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=all%26per_page=100 | jq ".[] | select(.title==\"${TITLE}\")")
 
-            if [ ${PR_EXISTS} -ne 0 ]
+            echo "Searching for pull request with title ${TITLE}..."
+            
+            if [ -z "${PR}" ]
             then
               git config user.name "GitHub Actions"
               git config user.email "actions@user.noreply.github.com"
-
+              echo "  ... not found in 100 most recent pull requests!"
+              
+              git fetch origin
+              
               BRANCH="up_ex_doc_to_${CURR}"
 
               if git branch -a | grep "$BRANCH" > /dev/null; then
-                  # already exists
+                  echo "Branch $BRANCH found! Bailing out..."
                   exit
               fi
 
-              git fetch origin
               git checkout -b "$BRANCH"
+              mix deps.get
               mix compile
               mix up_ex_doc_version "${CURR}"
 
               if ! git diff --exit-code 1> /dev/null ; then
-                  # there's stuff to push
+                  echo "There's stuff to push. Creating a pull request..."
                   git add .
-                  git commit -m "Update ex_doc version"
+                  git commit -m "${TITLE}"
                   git push origin "$BRANCH"
 
                   gh pr create --fill \
-                      --title "Update ex_dpc version (automation)" \
-                      --body "This is an automated action to update ex_doc version"
+                      --title "${TITLE}" \
+                      --body "This is an automated action to update \`ex_doc\` to version ${CURR}"
+              else
+                  echo "Nothing to push. Is \`ex_doc\` already at version ${CURR}?"
               fi
+            else
+              echo "  ... found! Bailing out..."
             fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

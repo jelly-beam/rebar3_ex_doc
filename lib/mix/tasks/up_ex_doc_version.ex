@@ -11,8 +11,9 @@ defmodule Mix.Tasks.UpExDocVersion do
       |> run(new_vsn)
 
     File.write!(@mix_exs, "#{content_up}\n")
-    Mix.Task.run("deps.unlock", ["ex_doc"])
-    Mix.Task.run("deps.get")
+    env = [{"PATH", System.get_env("PATH")}]
+    System.cmd("mix", ["deps.unlock", "ex_doc"], env: env)
+    System.cmd("mix", ["deps.get"], env: env)
   end
 
   defp run(mix_exs, new_vsn) do
