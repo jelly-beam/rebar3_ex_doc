@@ -17,8 +17,7 @@ jobs:
           otp-version: 24
           elixir-version: 1.13
       - run: |
-            CURR=`curl -s https://hex.pm/api/packages/ex_doc | jq -r '.latest_stable_version' \
-                  jq -r ".[0].name"
+            CURR=$(curl -s https://hex.pm/api/packages/ex_doc | jq -r '.latest_stable_version')
             TITLE="[automation] Update \`ex_doc\` to ${CURR}"
             PR=$(curl -s https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=all%26per_page=100 | jq ".[] | select(.title==\"${TITLE}\")")
 
