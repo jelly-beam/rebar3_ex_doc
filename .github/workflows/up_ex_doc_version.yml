@@ -42,6 +42,8 @@ jobs:
               mix deps.get
               mix compile
               mix up_ex_doc_version "${CURR}"
+              mix deps.unlock ex_doc
+              mix deps.get
 
               if ! git diff --exit-code 1> /dev/null ; then
                   echo "There's stuff to push. Creating a pull request..."
