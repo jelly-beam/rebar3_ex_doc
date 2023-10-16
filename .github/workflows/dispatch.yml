@@ -1,6 +1,6 @@
 ---
 name: CI workflow dispatch
-on: [workflow_dispatch]
+"on": [workflow_dispatch]
 
 jobs:
   ci_workflow_dispatch:
@@ -11,9 +11,14 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const response = await octokit.actions.createWorkflowDispatch({
-              owner: 'paulo-ferraz-oliveira',
-              repo: 'rebar3_ex_doc',
-              workflow_id: 'ci.yml',
-            });
-            console.log(response);
+            async function createWorkflowDispatch(workflowId) {
+              const response = await octokit.actions.createWorkflowDispatch({
+                owner: 'paulo-ferraz-oliveira',
+                repo: 'rebar3_ex_doc',
+                workflow_id: workflowId,
+              });
+              console.log(response);
+            }
+
+            await createWorkflowDispatch('ci.yml');
+            await createWorkflowDispatch('up_ex_doc_version.yml');
