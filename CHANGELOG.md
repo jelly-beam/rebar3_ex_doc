@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.21]
+
+- Add Elixir script to bump ex_doc version from CLI ([#67](https://github.com/stabelly/rebar3_ex_doc/pull/67))
+- Add new workflow to automatically (and periodically) update `ex_doc` version ([#65](https://github.com/stabelly/rebar3_ex_doc/pull/65))
+- [automation] Update `ex_doc` to 0.30.6 ([#68](https://github.com/stabelly/rebar3_ex_doc/pull/68))
+- [automation] Update `ex_doc` to 0.30.7 ([#69](https://github.com/stabelly/rebar3_ex_doc/pull/69))
+- Use include_paths directive in app.src ([#70](https://github.com/stabelly/rebar3_ex_doc/pull/70))
+
 ## [v0.2.20]
 
 - Bump ex_doc to 0.30.5
