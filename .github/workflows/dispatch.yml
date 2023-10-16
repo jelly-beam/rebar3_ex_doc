@@ -1,0 +1,19 @@
+---
+name: CI workflow dispatch
+on: [workflow_dispatch]
+
+jobs:
+  ci_workflow_dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: CI workflow dispatch
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const response = await octokit.actions.createWorkflowDispatch({
+              owner: 'paulo-ferraz-oliveira',
+              repo: 'rebar3_ex_doc',
+              workflow_id: 'ci.yml',
+            });
+            console.log(response);
