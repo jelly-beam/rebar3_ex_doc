@@ -9,6 +9,6 @@
   {env,[]},
   {modules, []},
   {licenses, ["Apache-2.0"]},
-  {include_files, ["priv/ex_doc"]},
+  {include_paths, ["priv/ex_doc"]},
   {links, [{"Github", "https://github.com/starbelly/rebar3_ex_doc"}]}
  ]}.
