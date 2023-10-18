@@ -1,6 +1,6 @@
 defmodule Rebar3ExDoc.MixProject do
   use Mix.Project
-  @ex_doc_version "0.30.7"
+  @ex_doc_version "0.30.8"
   def project do
     [
       app: :rebar3_ex_doc,
