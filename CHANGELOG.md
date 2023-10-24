@@ -9,24 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.2.21]
 
-- Add Elixir script to bump ex_doc version from CLI ([#67](https://github.com/stabelly/rebar3_ex_doc/pull/67))
-- Add new workflow to automatically (and periodically) update `ex_doc` version ([#65](https://github.com/stabelly/rebar3_ex_doc/pull/65))
-- [automation] Update `ex_doc` to 0.30.6 ([#68](https://github.com/stabelly/rebar3_ex_doc/pull/68))
-- [automation] Update `ex_doc` to 0.30.7 ([#69](https://github.com/stabelly/rebar3_ex_doc/pull/69))
-- Use include_paths directive in app.src ([#70](https://github.com/stabelly/rebar3_ex_doc/pull/70))
+- Add Elixir script to bump ex_doc version from CLI ([#67](https://github.com/starbelly/rebar3_ex_doc/pull/67))
+- Add new workflow to automatically (and periodically) update `ex_doc` version ([#65](https://github.com/starbelly/rebar3_ex_doc/pull/65))
+- [automation] Update `ex_doc` to 0.30.6 ([#68](https://github.com/starbelly/rebar3_ex_doc/pull/68))
+- [automation] Update `ex_doc` to 0.30.7 ([#69](https://github.com/starbelly/rebar3_ex_doc/pull/69))
+- Use include_paths directive in app.src ([#70](https://github.com/starbelly/rebar3_ex_doc/pull/70))
 
 ## [v0.2.20]
 
 - Bump ex_doc to 0.30.5
 - Minor doc changes (#61)
-- Fix rendering issues when mermaid is used (#59)
+- Fix rendering issues when mermaid is used ([#59](https://github.com/starbelly/rebar3_ex_doc/pull/59))
 
 
 ## [v0.2.19]
 
-* Fix negation behaviour of output param in config (#56)
+* Fix negation behaviour of output param in config ([#56](https://github.com/starbelly/rebar3_ex_doc/pull/56))
 * Update ex_doc to 0.30.3
-* Add out-of-the-box support for mermaid (#51)
+* Add out-of-the-box support for mermaid ([#51](https://github.com/starbelly/rebar3_ex_doc/pull/51))
 
 ## [v0.2.18]
 
@@ -34,8 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.2.17]
 
-* Allow generation of docs outside the context of a package (#45)
-* Provide option to opt of out of prefixing source vsn with v (#46)
+* Allow generation of docs outside the context of a package ([#45](https://github.com/starbelly/rebar3_ex_doc/pull/45))
+* Provide option to opt of out of prefixing source vsn with v ([#46](https://github.com/starbelly/rebar3_ex_doc/pull/46))
 
 ## [v0.2.16]
 
@@ -50,8 +50,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.2.14]
 
- - Prevent warnings when passing the "logo" option (#32)
- - Fix app commandline flag (#31)
+ - Prevent warnings when passing the "logo" option (#32)([#32](https://github.com/starbelly/rebar3_ex_doc/pull/32))
+ - Fix app commandline flag (#31)([#31](https://github.com/starbelly/rebar3_ex_doc/pull/31))
  - bump ex_doc to 0.29.0
 
 ## [v0.2.13]
@@ -60,14 +60,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [v0.2.12]
 
- - fix default edoc opts (#30)
+ - fix default edoc opts (#30)([#30](https://github.com/starbelly/rebar3_ex_doc/pull/30))
 
 ## v0.2.10 [2022-05-30]
 
-  - Switch foldl to foldr to preserve extra pages order (#28)
-  - gen_chunks: unfold edoc_opts from project rebar.config before merging (#25)
-  - Update development guide (#24)
-  - Increase available options, as per rebar3_ex_doc's own usage (#23)
+  - Switch foldl to foldr to preserve extra pages order ([#28](https://github.com/starbelly/rebar3_ex_doc/pull/28))
+  - gen_chunks: unfold edoc_opts from project rebar.config before merging (#25)([#25](https://github.com/starbelly/rebar3_ex_doc/pull/25))
+  - Update development guide ([#24](https://github.com/starbelly/rebar3_ex_doc/pull/24))
+  - Increase available options, as per rebar3_ex_doc's own usage ([#23](https://github.com/starbelly/rebar3_ex_doc/pull/23))
 
 ## v0.2.9 [2022-04-22]
 
