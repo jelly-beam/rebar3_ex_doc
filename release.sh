@@ -42,7 +42,7 @@ cd rebar3_ex_doc
 git checkout "v${VERSION}"
 
 EX_DOC_VER="v$(grep -m1 "@ex_doc_version" mix.exs | awk '{print $2}' | tr -d '"')"
-echo "Fetching ex_doc ${EX_DOC_VER} escript from github ..."
+echo "Fetching ex_doc ${EX_DOC_VER} escript from GitHub ..."
 curl -L -o ex_doc_otp_24 "https://github.com/elixir-lang/ex_doc/releases/download/${EX_DOC_VER}/ex_doc_otp_24"
 curl -L -o ex-doc-otp-24.sha256sum  "https://github.com/elixir-lang/ex_doc/releases/download/${EX_DOC_VER}/ex-doc-otp-24.sha256sum"
 
