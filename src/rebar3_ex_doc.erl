@@ -266,7 +266,7 @@ ex_doc_script_path(Opts) ->
     case proplists:get_value(ex_doc, Opts, undefined) of
         undefined ->
              Priv = code:priv_dir(rebar3_ex_doc),
-             filename:join(Priv, "ex_doc");
+             filename:join(Priv, "ex_doc_otp_24");
         Path ->
             case filelib:is_regular(Path) of
                 true ->

@@ -73,8 +73,8 @@ generate_docs_alternate_rebar3_config_format(Config) ->
 
 generate_docs_with_alternate_ex_doc(Config) ->
     Priv = code:priv_dir(rebar3_ex_doc),
-    Default = filename:join(Priv, "ex_doc"),
-    Alt = filename:join(data_dir(Config), "ex_doc"),
+    Default = filename:join(Priv, "ex_doc_otp_24"),
+    Alt = filename:join(data_dir(Config), "ex_doc_otp_24"),
     {ok, _} = file:copy(Default, Alt),
     file:change_mode(Alt, 8#00700),
 

@@ -27,10 +27,7 @@ if [ "${VERSION}" == "" ]; then
     exit
 fi
 
-
-mix deps.get
-mix escript.build
-rm -f priv/ex_doc
+rm -f priv/ex_doc_otp_24
 
 mkdir -p  _checkouts
 
@@ -44,11 +41,23 @@ cd rebar3_ex_doc
 
 git checkout "v${VERSION}"
 
-mix deps.get
-mix escript.build
+EX_DOC_VER="v$(grep -m1 "@ex_doc_version" mix.exs | awk '{print $2}' | tr -d '"')"
+echo "Fetching ex_doc ${EX_DOC_VER} escript from GitHub ..."
+curl -L -o ex_doc_otp_24 "https://github.com/elixir-lang/ex_doc/releases/download/${EX_DOC_VER}/ex_doc_otp_24"
+curl -L -o ex-doc-otp-24.sha256sum  "https://github.com/elixir-lang/ex_doc/releases/download/${EX_DOC_VER}/ex-doc-otp-24.sha256sum"
 
-SIZE=$(du -ah priv/ex_doc | awk '{print $1}')
-echo "Size of priv/ex_doc: $SIZE"
+echo "Validating integrity of ex_doc download..."
+
+sha256sum -c ex-doc-otp-24.sha256sum
+
+chmod +x ex_doc_otp_24
+mv ex_doc_otp_24 priv
+mv  ex-doc-otp-24.sha256sum priv
+
+echo "Looks good!"
+
+SIZE=$(du -ah priv/ex_doc_otp_24 | awk '{print $1}')
+echo "Size of priv/ex_doc_otp_24: $SIZE"
 
 rebar3 ex_doc
 
