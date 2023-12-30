@@ -172,7 +172,7 @@ If your project doesn't follow this convention you may opt out of it with `{pref
 
 ### Examples
 
-Check out our [examples](examples) directory in this repository for working project examples.
+Check out our [examples](https://github.com/starbelly/rebar3_ex_doc/tree/main/examples) directory in this repository for working project examples.
 
 ### Extras
 
