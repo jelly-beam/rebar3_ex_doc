@@ -6,6 +6,8 @@
 
 all() ->
     [
+
+       mermaid_before_before_closing_body_tag,
         generate_docs,
         generate_docs_alternate_rebar3_config_format,
         generate_docs_with_current_app_set,
@@ -14,6 +16,7 @@ all() ->
         generate_docs_with_output_set_in_config,
         generate_docs_overriding_output_set_in_config,
         format_errors
+
     ].
 
 init_per_suite(Config) ->
@@ -213,6 +216,50 @@ format_errors(_) ->
     Err5 = "An unknown error has occurred. Run with DIAGNOSTICS=1 for more details.",
     ?assertEqual(Err5, rebar3_ex_doc:format_error({eh, some_error})).
 
+%% Check that:
+%%      1. mermaid is included
+%%      2. before_closing_body_tag is included
+%%      3. mermaid comes before before_closing_body_tag
+%% in main file and in module docs
+mermaid_before_before_closing_body_tag(Config) ->
+    AppNameStr = "default_docs",
+    StubConfig = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        name => AppNameStr,
+        config =>
+            {ex_doc, [
+                {source_url, <<"https://github.com/eh/eh">>},
+                {extras, [<<"README.md">>, <<"LICENSE">>]},
+                {main, <<"readme">>},
+                {with_mermaid, true},
+                {before_closing_body_tag, #{html => "<div id=\"custom_html\"></div>"}}
+            ]}
+    },
+    {State, App} = make_stub(StubConfig),
+
+    ok = make_readme(App),
+    ok = make_license(App),
+    {ok, _} = rebar3_ex_doc:do(State),
+
+    AppDir = rebar_app_info:dir(App),
+    {Opts, _Args} = rebar_state:command_parsed_args(State),
+    #{config := {ex_doc, DocConfig}} = StubConfig,
+    DocDir = filename:join(AppDir, get_doc_dir(Opts, DocConfig)),
+    {ok, ModuleDoc} = file:read_file(filename:join(DocDir, AppNameStr ++ ".html")),
+    {ok, ReadMeDoc} = file:read_file(filename:join(DocDir, "readme.html")),
+
+    %% Mermaid CDN followed by init script
+    MermaidRE = "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@.*/dist/mermaid.min.js\">(?s).*</script>(?s).*<script>(?s).*</script>",
+    #{html := BeforeCloseBodyTagRE} = proplists:get_value(before_closing_body_tag, DocConfig),
+    
+    lists:foreach(fun (Doc) -> 
+                        {match, [{StartMermaid,_}]} = re:run(Doc, MermaidRE, []),
+                        {match, [{StartBeforeCloseBodyTag,_}]} = re:run(Doc, BeforeCloseBodyTagRE, []),
+                        ?assert(StartMermaid < StartBeforeCloseBodyTag)
+                    end,
+                    [ReadMeDoc, ModuleDoc]).
+
 check_docs(App, State, #{config := {ex_doc, DocConfig}} = _Stub) ->
     Extras = format_extras(proplists:get_value(extras, DocConfig)),
     AppDir = rebar_app_info:dir(App),
@@ -229,6 +276,7 @@ check_docs(App, State, #{config := {ex_doc, DocConfig}} = _Stub) ->
     {ok, ReadMeDoc} = file:read_file(filename:join(DocDir, "readme.html")),
     {ok, [_ | _]} = zip:unzip(filename:join(DocDir, AppNameStr ++ ".epub"), [{cwd, DocDir}]),
     {ok, EpubReadMe} = file:read_file(filename:join(DocDir, "OEBPS/readme.xhtml")),
+    
     ?assertMatch({match, [AppName]}, re:run(IndexDoc, AppName, [{capture, [0], binary}])),
     ?assertMatch(
         {match, [<<"PLEASE READ ME">>]},
