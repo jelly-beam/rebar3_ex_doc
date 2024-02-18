@@ -37,6 +37,8 @@ jobs:
         with:
           otp-version: '24'
           elixir-version: '1.16.1'
+      - name: Checkout code
+        uses: actions/checkout@v4
       - name: Build ex_doc
         run: |
           mix deps.get
@@ -50,6 +52,7 @@ jobs:
   consumer:
     name: "Consumer: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}"
     runs-on: ubuntu-latest
+    needs: gen_ex_doc
     strategy:
       matrix:
         otp: ['24', '25', '26', '27.0-rc1']
