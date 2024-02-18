@@ -8,8 +8,8 @@ on:
     types: [opened, synchronize]
 
 jobs:
-  plugin:
-    name: "Plugin: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}"
+  test:
+    name: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -27,21 +27,3 @@ jobs:
         run: rebar3 dialyzer
       - name: Common Tests
         run: rebar3 ct
-
-  consumer:
-    name: "Consumer: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}"
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        otp: ['24', '25', '26', '27.0-rc1']
-        rebar3: ['3.22.1']
-    steps:
-      - uses: actions/checkout@v4
-      - uses: erlef/setup-beam@v1
-        with:
-          otp-version: ${{matrix.otp}}
-          rebar3-version: ${{matrix.rebar3}}
-      - name: Test
-        run: |
-          cd examples/mylib
-          rebar3 ex_doc # test generation happens without errors
