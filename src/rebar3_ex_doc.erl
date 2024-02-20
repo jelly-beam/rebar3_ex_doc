@@ -307,7 +307,8 @@ get_exdoc_opt(App, OptName) ->
             proplists:get_value(OptName, Opts, undefined)
     end.
 
-to_ex_doc_format(ExDocOpts) ->
+to_ex_doc_format(ExDocOpts0) ->
+    ExDocOpts = lists:keysort(1, ExDocOpts0),
     lists:foldl(
         fun ({api_reference = K, APIReference}, Opts) ->
                 [{K, APIReference} | Opts];
@@ -338,7 +339,14 @@ to_ex_doc_format(ExDocOpts) ->
             ({prefix_ref_vsn_with_v, _}, Opts) ->
                 Opts;
             ({with_mermaid, Vsn}, Opts) ->
-                Opts ++ mermaid_add(Vsn);
+                Key = before_closing_body_tag,
+                Existing = proplists:get_value(Key, Opts),
+                Mermaid = case mermaid_add(Vsn) of
+                            "" -> undefined;
+                            [{Key,MermaidMap}] -> MermaidMap
+                          end,
+                New = merge_before_closing_body_tag(Mermaid, Existing),
+                lists:keyreplace(Key, 1, Opts, {Key, New});
             (OtherOpt, Opts) ->
                 rebar_api:warn("unknown ex_doc option ~p", [OtherOpt]),
                 [OtherOpt | Opts]
@@ -529,10 +537,9 @@ mermaid_add(true) ->
   mermaid_add(?DEFAULT_MERMAID_VSN);
 mermaid_add(Vsn) when is_list(Vsn) ->
     [{before_closing_body_tag, #{
-        html => "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@" ++ Vsn ++ "/dist/mermaid.min.js\" />
-                 <script>
+        html => "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@" ++ Vsn ++ "/dist/mermaid.min.js\"></script>                <script>
                    document.addEventListener(\"DOMContentLoaded\", function () {
-                     mermaid.initialize({
+                    mermaid.initialize({
                        startOnLoad: false,
                        theme: document.body.className.includes(\"dark\") ? \"dark\" : \"default\"
                      });
@@ -554,3 +561,34 @@ mermaid_add(Vsn) when is_list(Vsn) ->
     }}];
 mermaid_add(Vsn) ->
     ?RAISE({mermaid_vsn_not_string, Vsn}).
+
+merge_before_closing_body_tag(MermaidMap, Custom) ->
+    try
+        do_merge_before_closing_body_tag(MermaidMap, Custom)
+    catch
+        _:_:_ ->
+            ?RAISE({invalid_before_closing_body_tag, Custom})
+    end.
+
+do_merge_before_closing_body_tag(undefined, Custom) ->
+    Custom;
+do_merge_before_closing_body_tag(MermaidMap, undefined) ->
+    MermaidMap;
+do_merge_before_closing_body_tag(MermaidMap, {M,F,Args}) 
+        when is_atom(M) and is_atom(F) and is_list(Args) ->
+    CustomMap = #{html => erlang:apply(M, F, [html|Args]),
+                  epub => erlang:apply(M, F, [epub|Args])},
+    do_merge_before_closing_body_tag(MermaidMap, CustomMap);
+do_merge_before_closing_body_tag(MermaidMap, CustomFun)
+        when is_function(CustomFun, 1) ->
+    CustomMap = #{html => CustomFun(html),
+                  epub => CustomFun(epub)},
+    do_merge_before_closing_body_tag(MermaidMap, CustomMap);
+do_merge_before_closing_body_tag(MermaidMap, CustomMap) ->
+    maps:merge_with(fun (html,Mermaid,Custom) ->
+                        Mermaid ++ Custom;
+                        (_,_,V2) ->
+                            V2
+                    end,
+                    MermaidMap,
+                    CustomMap).
