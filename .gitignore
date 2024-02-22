@@ -45,4 +45,4 @@ _plugins
 _tdeps
 logs
 doc
-priv/ex_doc_otp_24
+priv/ex_doc_otp_*
