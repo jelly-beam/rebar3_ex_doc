@@ -23,9 +23,6 @@ jobs:
           - otp: '26'
             elixir: '1.15'
             rebar3: '3.22.1'
-          - otp: '27.0-rc1'
-            elixir: '1.16'
-            rebar3: '3.22.1'
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
@@ -50,8 +47,6 @@ jobs:
             elixir: '1.14'
           - otp: '26'
             elixir: '1.15'
-          - otp: '27.0-rc1'
-            elixir: '1.16'
     steps:
       - name: Setup Elixir
         uses: erlef/setup-beam@v1
@@ -76,7 +71,7 @@ jobs:
     needs: gen_ex_doc
     strategy:
       matrix:
-        otp: ['24', '25', '26', '27.0-rc1']
+        otp: ['24', '25', '26']
         rebar3: ['3.22.1']
     steps:
       - name: Checkout code
