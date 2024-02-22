@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    name: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}
+    name: Erlang/OTP ${{matrix.triplet.otp}} / rebar3 ${{matrix.triplet.rebar3}}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -30,9 +30,9 @@ jobs:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{matrix.otp}}
-          elixir-version: ${{matrix.elixir}}
-          rebar3-version: ${{matrix.rebar3}}
+          otp-version: ${{matrix.triplet.otp}}
+          elixir-version: ${{matrix.triplet.elixir}}
+          rebar3-version: ${{matrix.triplet.rebar3}}
       - name: Static analysis
         run: rebar3 dialyzer
       - name: Common Tests
@@ -56,8 +56,8 @@ jobs:
       - name: Setup Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{matrix.otp}}
-          elixir-version: ${{matrix.elixir}}
+          otp-version: ${{matrix.pair.otp}}
+          elixir-version: ${{matrix.pair.elixir}}
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build ex_doc
