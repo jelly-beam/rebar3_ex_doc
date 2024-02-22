@@ -10,12 +10,23 @@ jobs:
   test:
     name: Update ex_doc version
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pair:
+          - otp: '24'
+            elixir: '1.12'
+          - otp: '25'
+            elixir: '1.14'
+          - otp: '26'
+            elixir: '1.15'
+          - otp: '27.0-rc1'
+            elixir: '1.16'
     steps:
       - uses: actions/checkout@v4
       - uses: erlef/setup-beam@v1
         with:
-          otp-version: 24
-          elixir-version: 1.13
+          otp-version: ${{matrix.pair.otp}}
+          elixir-version: ${{matrix.pair.elixir}}
       - run: |
             CURR=$(curl -s https://hex.pm/api/packages/ex_doc | jq -r '.latest_stable_version')
             TITLE="[automation] Update \`ex_doc\` to ${CURR}"

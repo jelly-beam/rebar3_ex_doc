@@ -13,15 +13,25 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        elixir: ['1.13']
-        otp: ['24']
-        rebar3: ['3.16.1']
+        triplet:
+          - otp: '24'
+            elixir: '1.12'
+            rebar3: '3.22.1'
+          - otp: '25'
+            elixir: '1.14'
+            rebar3: '3.22.1'
+          - otp: '26'
+            elixir: '1.15'
+            rebar3: '3.22.1'
+          - otp: '27.0-rc1'
+            elixir: '1.16'
+            rebar3: '3.22.1'
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
         with:
-          elixir-version: ${{matrix.elixir}}
           otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
           rebar3-version: ${{matrix.rebar3}}
       - name: Static analysis
         run: rebar3 dialyzer
@@ -31,12 +41,23 @@ jobs:
   gen_ex_doc:
     name: Generate `ex_doc` for `priv`
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        pair:
+          - otp: '24'
+            elixir: '1.12'
+          - otp: '25'
+            elixir: '1.14'
+          - otp: '26'
+            elixir: '1.15'
+          - otp: '27.0-rc1'
+            elixir: '1.16'
     steps:
       - name: Setup Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: '24'
-          elixir-version: '1.16.1'
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
       - name: Checkout code
         uses: actions/checkout@v4
       - name: Build ex_doc
