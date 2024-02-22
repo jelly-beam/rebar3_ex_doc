@@ -62,8 +62,8 @@ jobs:
       - name: Cache for consumption  # We do this to use the file in a non-Elixir env.
         uses: actions/cache/save@v4
         with:
-          path: priv
-          key: consumer-ex_doc-cache
+          path: priv/ex_doc_otp_${{matrix.pair.otp}}
+          key: consumer-ex_doc-cache-${{matrix.pair.otp}}
 
   consumer:
     name: "Consumer: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}"
@@ -79,8 +79,8 @@ jobs:
       - name: Restore for consumption  # We do this to use the file in a non-Elixir env.
         uses: actions/cache/restore@v4
         with:
-          path: priv
-          key: consumer-ex_doc-cache
+          path: priv/ex_doc_otp_${{matrix.otp}}
+          key: consumer-ex_doc-cache-${{matrix.otp}}
       - name: Setup Erlang
         uses: erlef/setup-beam@v1
         with:
