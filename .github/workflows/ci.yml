@@ -42,6 +42,7 @@ jobs:
     name: Generate `ex_doc` for `priv`
     runs-on: ubuntu-latest
     strategy:
+      max-parallel: 1
       matrix:
         pair:
           - otp: '24'
@@ -60,15 +61,15 @@ jobs:
           elixir-version: ${{matrix.pair.elixir}}
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Restore/cache for consumption  # We do this to use the file in a non-Elixir env.
+        uses: actions/cache@v4
+        with:
+          path: priv/ex_doc_otp
+          key: consumer-ex_doc-cache
       - name: Build ex_doc
         run: |
           mix deps.get
           mix escript.build
-      - name: Cache for consumption  # We do this to use the file in a non-Elixir env.
-        uses: actions/cache/save@v4
-        with:
-          path: priv/ex_doc_otp_${{matrix.pair.otp}}
-          key: consumer-ex_doc-cache-${{matrix.pair.otp}}
 
   consumer:
     name: "Consumer: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}"
@@ -84,8 +85,8 @@ jobs:
       - name: Restore for consumption  # We do this to use the file in a non-Elixir env.
         uses: actions/cache/restore@v4
         with:
-          path: priv/ex_doc_otp_${{matrix.otp}}
-          key: consumer-ex_doc-cache-${{matrix.otp}}
+          path: priv/ex_doc_otp
+          key: consumer-ex_doc-cache
       - name: Setup Erlang
         uses: erlef/setup-beam@v1
         with:
