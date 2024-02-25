@@ -400,6 +400,22 @@ get_app_metadata(Name, Vsn) ->
         {links, []}
     ]}.
 
+-if(?OTP_RELEASE >= 27).
+erl_src_file(Name) ->
+    io_lib:format(
+        "-module('~s').\n"
+        "-moduledoc \"\"\"\n"
+        "`~s` - a module\n"
+        "\"\"\".\n"
+        "-export([foo/0]).\n"
+        "-doc \"\"\"\n"
+        "foo/0 does nothing\n"
+        "\"\"\".\n"
+        "-spec foo() -> ok.\n"
+        "foo() -> ok.\n",
+        [Name, Name]
+    ).
+-else.
 erl_src_file(Name) ->
     io_lib:format(
         "%%%-------------------------------------------------------------------\n"
@@ -415,6 +431,7 @@ erl_src_file(Name) ->
         "foo() -> ok.\n",
         [Name, Name]
     ).
+-endif.
 
 mkdir_p(Path) ->
     DirName = filename:join([filename:absname(Path), "tmp"]),
