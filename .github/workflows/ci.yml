@@ -44,32 +44,36 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        pair:
+        triplet:
           - otp: '24'
             elixir: '1.13'
+            cache-id: oldest
           - otp: '25'
             elixir: '1.14'
+            cache-id: plus_one
           - otp: '26'
             elixir: '1.15'
+            cache-id: plus_two
           - otp: '27.0-rc1'
             elixir: '1.16'
+            cache-id: plus_three
     steps:
       - name: Setup Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{matrix.pair.otp}}
-          elixir-version: ${{matrix.pair.elixir}}
+          otp-version: ${{matrix.triplet.otp}}
+          elixir-version: ${{matrix.triplet.elixir}}
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Restore/cache for consumption  # We do this to use the file in a non-Elixir env.
-        uses: actions/cache@v4
-        with:
-          path: priv/ex_doc_otp
-          key: consumer-ex_doc-cache
       - name: Build ex_doc
         run: |
           mix deps.get
           mix escript.build
+      - name: Save cache for consumption  # We do this to use the file in a non-Elixir env.
+        uses: actions/cache/save@v4
+        with:
+          path: priv
+          key: consumer-cache-${{matrix.triplet.cache-id}}
 
   consumer:
     name: "Consumer: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}"
@@ -82,11 +86,26 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      - name: Restore for consumption  # We do this to use the file in a non-Elixir env.
+      - name: Restore cache (oldest)  # We do this to use the file in a non-Elixir env.
         uses: actions/cache/restore@v4
         with:
-          path: priv/ex_doc_otp
-          key: consumer-ex_doc-cache
+          path: priv
+          key: consumer-cache-oldest
+      - name: Restore cache (plus_one)
+        uses: actions/cache/restore@v4
+        with:
+          path: priv
+          key: consumer-cache-plus_one
+      - name: Restore cache (plus_two)
+        uses: actions/cache/restore@v4
+        with:
+          path: priv
+          key: consumer-cache-plus_two
+      - name: Restore cache (plus_three)
+        uses: actions/cache/restore@v4
+        with:
+          path: priv
+          key: consumer-cache-plus_three
       - name: Setup Erlang
         uses: erlef/setup-beam@v1
         with:
