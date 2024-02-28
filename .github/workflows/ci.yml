@@ -23,9 +23,9 @@ jobs:
           - otp: '26'
             elixir: '1.15'
             rebar3: '3.22.1'
-          - otp: '27.0-rc1'
-            elixir: '1.16'
-            rebar3: '3.22.1'
+          - otp: 'master'
+            elixir: 'main'
+            rebar3: 'nightly'
     steps:
       - uses: actions/checkout@v2
       - uses: erlef/setup-beam@v1
@@ -54,8 +54,8 @@ jobs:
           - otp: '26'
             elixir: '1.15'
             cache-id: plus_two
-          - otp: '27.0-rc1'
-            elixir: '1.16'
+          - otp: 'master'
+            elixir: 'main'
             cache-id: plus_three
     steps:
       - name: Setup Elixir
@@ -76,13 +76,20 @@ jobs:
           key: consumer-cache-${{matrix.triplet.cache-id}}
 
   consumer:
-    name: "Consumer: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}"
+    name: "Consumer: Erlang/OTP ${{matrix.pair.otp}} / rebar3 ${{matrix.pair.rebar3}}"
     runs-on: ubuntu-latest
     needs: gen_ex_doc
     strategy:
       matrix:
-        otp: ['24', '25', '26', '27.0-rc1']
-        rebar3: ['3.22.1']
+        pair:
+          - otp: '24'
+            rebar3: '3.22.1'
+          - otp: '25'
+            rebar3: '3.22.1'
+          - otp: '26'
+            rebar3: '3.22.1'
+          - otp: 'master'
+            rebar3: 'nightly'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -109,8 +116,8 @@ jobs:
       - name: Setup Erlang
         uses: erlef/setup-beam@v1
         with:
-          otp-version: ${{matrix.otp}}
-          rebar3-version: ${{matrix.rebar3}}
+          otp-version: ${{matrix.pair.otp}}
+          rebar3-version: ${{matrix.pair.rebar3}}
       - name: Eat your own dog food
         run: |
           cd examples/mylib
