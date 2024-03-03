@@ -27,3 +27,50 @@ jobs:
         run: rebar3 dialyzer
       - name: Common Tests
         run: rebar3 ct
+
+  gen_ex_doc:
+    name: Generate `ex_doc` for `priv`
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: '24'
+          elixir-version: '1.16.1'
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build ex_doc
+        run: |
+          mix deps.get
+          mix escript.build
+      - name: Cache for consumption  # We do this to use the file in a non-Elixir env.
+        uses: actions/cache/save@v4
+        with:
+          path: priv
+          key: consumer-ex_doc-cache
+
+  consumer:
+    name: "Consumer: Erlang/OTP ${{matrix.otp}} / rebar3 ${{matrix.rebar3}}"
+    runs-on: ubuntu-latest
+    needs: gen_ex_doc
+    strategy:
+      matrix:
+        otp: ['24', '25', '26', '27.0-rc1']
+        rebar3: ['3.22.1']
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Restore for consumption  # We do this to use the file in a non-Elixir env.
+        uses: actions/cache/restore@v4
+        with:
+          path: priv
+          key: consumer-ex_doc-cache
+      - name: Setup Erlang
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          rebar3-version: ${{matrix.rebar3}}
+      - name: Eat your own dog food
+        run: |
+          cd examples/mylib
+          rebar3 ex_doc  # test that generation happens without errors
