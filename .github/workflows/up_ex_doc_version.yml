@@ -37,7 +37,7 @@ jobs:
       - run: |
             CURR=$(curl -s https://hex.pm/api/packages/ex_doc | jq -r '.latest_stable_version')
             TITLE="[automation] Update \`ex_doc\` to ${CURR}"
-            PR=$(curl -s https://api.github.com/repos/"${GITHUB_REPOSITORY}"/pulls?state=all%26per_page=100 | jq ".[] | select(.title==\"${TITLE}\")")
+            PR=$(curl -s https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls?state=all%26per_page=100 | jq ".[] | select(.title==\"${TITLE}\")")
 
             echo "Searching for pull request with title ${TITLE}..."
             
@@ -65,7 +65,7 @@ jobs:
 
               set +e
               rebar3 do dialyzer, ct
-                UP_EX_DOC_VERSION_CONTROL_ISSUE=85
+              UP_EX_DOC_VERSION_CONTROL_ISSUE=85
               if [ $? -ne 0 ]; then
                 gh issue reopen "${UP_EX_DOC_VERSION_CONTROL_ISSUE}" || true
                 gh issue edit "${UP_EX_DOC_VERSION_CONTROL_ISSUE}" -t "[automation] Workflow \`up_ex_doc_version\` failed" -b "Something's wrong with workflow \`up_ex_doc_version\`. Check [this](/${GITHUB_REPOSITORY}/actions/workflows/up_ex_doc_version.yml)."
