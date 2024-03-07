@@ -52,13 +52,18 @@ init(State) ->
 -spec do(rebar_state:t()) ->
     {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
 do(State) ->
-    case list_to_integer(erlang:system_info(otp_release)) of
+    case otp_release() of
         Min when Min >= 24 ->
             Apps = get_apps(State),
             run(State, Apps);
         Ver ->
             ?RAISE({unsupported_otp, Ver})
     end.
+
+-spec otp_release() -> OTPRelease
+when OTPRelease :: pos_integer().
+otp_release() ->
+    list_to_integer(erlang:system_info(otp_release)).
 
 -spec format_error(any()) -> iolist().
 format_error({app_not_found, AppName}) ->
@@ -76,11 +81,14 @@ format_error({write_config, Err}) ->
     rebar_api:debug("Unknown error error occurred generating docs config: ~p", [Err]),
     "An unknown error occurred generating docs config. Run with DIAGNOSTICS=1 for more details.";
 format_error({unsupported_otp, Ver}) ->
-    Str = "You are using erlang/OTP '~ts', but this plugin requires at least erlang/OTP 24.",
+    Str = "You are using Erlang/OTP '~ts', but this plugin requires at least Erlang/OTP 24.",
     io_lib:format(Str, [integer_to_list(Ver)]);
 format_error({mermaid_vsn_not_string, Vsn}) ->
     Str = "ex_doc option 'with_mermaid' should be 'true', 'false', or string(). Got: ~p",
     io_lib:format(Str, [Vsn]);
+format_error({no_compatible_ex_doc, OTPRelease}) ->
+    Str = "ex_doc escript not available for (current) OTP release ~p~n",
+    io_lib:format(Str, [OTPRelease]);
 format_error({ex_doc, _}) ->
     "";
 format_error(Err) ->
@@ -263,10 +271,10 @@ ex_doc_escript(Opts) ->
     end.
 
 ex_doc_script_path(Opts) ->
-    case proplists:get_value(ex_doc, Opts, undefined) of
+    ExDocOpts = proplists:get_value(ex_doc, Opts, undefined),
+    case ExDocOpts of
         undefined ->
-             Priv = code:priv_dir(rebar3_ex_doc),
-             filename:join(Priv, "ex_doc_otp_24");
+             ex_doc_for(otp_release(), 0);
         Path ->
             case filelib:is_regular(Path) of
                 true ->
@@ -275,6 +283,24 @@ ex_doc_script_path(Opts) ->
                     ?RAISE({invalid_ex_doc_path, Path})
             end
     end.
+
+ex_doc_for(OTPRelease, Sub) ->
+    case ex_doc_exists_for(OTPRelease - Sub) of
+        {true, File} ->
+            File;
+        % assuming compatibility lasts 3 versions
+        false when Sub < 3 ->
+            ex_doc_for(OTPRelease, Sub + 1);
+        false ->
+            ?RAISE({no_compatible_ex_doc, OTPRelease - Sub + 1})
+    end.
+
+ex_doc_exists_for(OTPRelease) ->
+    Priv = code:priv_dir(rebar3_ex_doc),
+    File = "ex_doc_otp_" ++ integer_to_list(OTPRelease),
+    PrivFile = filename:join(Priv, File),
+    Exists = filelib:is_regular(PrivFile),
+    Exists andalso {true, PrivFile}.
 
 win32_ex_doc_script(Path) ->
    "escript.exe " ++ filename:nativename(Path).

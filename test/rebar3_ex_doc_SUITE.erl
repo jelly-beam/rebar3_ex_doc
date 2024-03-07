@@ -6,8 +6,7 @@
 
 all() ->
     [
-
-       mermaid_before_before_closing_body_tag,
+        mermaid_before_before_closing_body_tag,
         generate_docs,
         generate_docs_alternate_rebar3_config_format,
         generate_docs_with_current_app_set,
@@ -16,8 +15,21 @@ all() ->
         generate_docs_with_output_set_in_config,
         generate_docs_overriding_output_set_in_config,
         format_errors
+    ] ++ all_post_27(list_to_integer(erlang:system_info(otp_release))).
 
-    ].
+all_post_27(OTPRelease) when OTPRelease >= 27 ->
+    [
+        mermaid_before_before_closing_body_tag_post_27,
+        generate_docs_post_27,
+        generate_docs_alternate_rebar3_config_format_post_27,
+        generate_docs_with_current_app_set_post_27,
+        generate_docs_with_bad_config_post_27,
+        generate_docs_with_alternate_ex_doc_post_27,
+        generate_docs_with_output_set_in_config_post_27,
+        generate_docs_overriding_output_set_in_config_post_27
+    ];
+all_post_27(_OTPRelease) ->
+    [].
 
 init_per_suite(Config) ->
     {ok, Cwd} = file:get_cwd(),
@@ -31,7 +43,32 @@ init_per_suite(Config) ->
 end_per_suite(Config) ->
     Config.
 
+mermaid_before_before_closing_body_tag_post_27(Config) ->
+    mermaid_before_before_closing_body_tag([{post_27, true} | Config]).
+
+generate_docs_post_27(Config) ->
+    generate_docs([{post_27, true} | Config]).
+
+generate_docs_alternate_rebar3_config_format_post_27(Config) ->
+    generate_docs_alternate_rebar3_config_format([{post_27, true} | Config]).
+
+generate_docs_with_current_app_set_post_27(Config) ->
+    generate_docs_with_current_app_set([{post_27, true} | Config]).
+
+generate_docs_with_bad_config_post_27(Config) ->
+    generate_docs_with_bad_config([{post_27, true} | Config]).
+
+generate_docs_with_alternate_ex_doc_post_27(Config) ->
+    generate_docs_with_alternate_ex_doc([{post_27, true} | Config]).
+
+generate_docs_with_output_set_in_config_post_27(Config) ->
+    generate_docs_with_output_set_in_config([{post_27, true} | Config]).
+
+generate_docs_overriding_output_set_in_config_post_27(Config) ->
+    generate_docs_overriding_output_set_in_config([{post_27, true} | Config]).
+
 generate_docs(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
     StubConfig = #{
         app_src => #{version => "0.1.0"},
         dir => data_dir(Config),
@@ -43,7 +80,7 @@ generate_docs(Config) ->
                 {main, <<"readme">>}
             ]}
     },
-    {State, App} = make_stub(StubConfig),
+    {State, App} = make_stub(Post27, StubConfig),
 
     ok = make_readme(App),
     ok = make_license(App),
@@ -51,6 +88,7 @@ generate_docs(Config) ->
     check_docs(App, State, StubConfig).
 
 generate_docs_alternate_rebar3_config_format(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
     StubConfig = #{
         app_src => #{version => "0.1.0"},
         dir => data_dir(Config),
@@ -67,7 +105,7 @@ generate_docs_alternate_rebar3_config_format(Config) ->
                 }]}
             ]}
     },
-    {State, App} = make_stub(StubConfig),
+    {State, App} = make_stub(Post27, StubConfig),
 
     ok = make_readme(App),
     ok = make_license(App),
@@ -75,9 +113,11 @@ generate_docs_alternate_rebar3_config_format(Config) ->
     check_docs(App, State, StubConfig).
 
 generate_docs_with_alternate_ex_doc(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
     Priv = code:priv_dir(rebar3_ex_doc),
-    Default = filename:join(Priv, "ex_doc_otp_24"),
-    Alt = filename:join(data_dir(Config), "ex_doc_otp_24"),
+    ExDoc = "ex_doc_otp_" ++ erlang:system_info(otp_release),
+    Default = filename:join(Priv, ExDoc),
+    Alt = filename:join(data_dir(Config), ExDoc),
     {ok, _} = file:copy(Default, Alt),
     file:change_mode(Alt, 8#00700),
 
@@ -93,7 +133,7 @@ generate_docs_with_alternate_ex_doc(Config) ->
                 {main, <<"readme">>}
             ]}
     },
-    {State, App} = make_stub(StubConfig),
+    {State, App} = make_stub(Post27, StubConfig),
 
     ok = make_readme(App),
     ok = make_license(App),
@@ -112,13 +152,14 @@ generate_docs_with_alternate_ex_doc(Config) ->
                 {main, <<"readme">>}
             ]}
     },
-    {State1, App1} = make_stub(StubConfig1),
+    {State1, App1} = make_stub(Post27, StubConfig1),
 
     ok = make_readme(App1),
     ok = make_license(App1),
     ?assertError({error,{rebar3_ex_doc,{invalid_ex_doc_path,"path/to"}}}, rebar3_ex_doc:do(State1)).
 
 generate_docs_with_current_app_set(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
     StubConfig = #{
         app_src => #{version => "0.1.0"},
         dir => data_dir(Config),
@@ -130,7 +171,7 @@ generate_docs_with_current_app_set(Config) ->
                 {main, <<"readme">>}
             ]}
     },
-    {State, App} = make_stub(StubConfig),
+    {State, App} = make_stub(Post27, StubConfig),
     State1 = rebar_state:current_app(State, App),
     ok = make_readme(App),
     ok = make_license(App),
@@ -138,6 +179,7 @@ generate_docs_with_current_app_set(Config) ->
     check_docs(App, State, StubConfig).
 
 generate_docs_with_bad_config(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
     StubConfig = #{
         app_src => #{version => "0.1.0"},
         dir => data_dir(Config),
@@ -149,12 +191,13 @@ generate_docs_with_bad_config(Config) ->
                 {main, "readme"}
             ]}
     },
-    {State, App} = make_stub(StubConfig),
+    {State, App} = make_stub(Post27, StubConfig),
     ok = make_readme(App),
     ok = make_license(App),
     ?assertError({error, {rebar3_ex_doc, {ex_doc, _}}}, rebar3_ex_doc:do(State)).
 
 generate_docs_with_output_set_in_config(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
     StubConfig = #{
         app_src => #{version => "0.1.0"},
         dir => data_dir(Config),
@@ -167,7 +210,7 @@ generate_docs_with_output_set_in_config(Config) ->
                 {output, "foo_docs"}
             ]}
     },
-    {State, App} = make_stub(StubConfig),
+    {State, App} = make_stub(Post27, StubConfig),
 
     ok = make_readme(App),
     ok = make_license(App),
@@ -175,6 +218,7 @@ generate_docs_with_output_set_in_config(Config) ->
     check_docs(App, State, StubConfig).
 
 generate_docs_overriding_output_set_in_config(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
     StubConfig = #{
         app_src => #{version => "0.1.0"},
         dir => data_dir(Config),
@@ -188,7 +232,7 @@ generate_docs_overriding_output_set_in_config(Config) ->
                 {output, "foo_docs"}
             ]}
     },
-    {State, App} = make_stub(StubConfig),
+    {State, App} = make_stub(Post27, StubConfig),
 
     ok = make_readme(App),
     ok = make_license(App),
@@ -222,6 +266,7 @@ format_errors(_) ->
 %%      3. mermaid comes before before_closing_body_tag
 %% in main file and in module docs
 mermaid_before_before_closing_body_tag(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
     AppNameStr = "default_docs",
     StubConfig = #{
         app_src => #{version => "0.1.0"},
@@ -236,7 +281,7 @@ mermaid_before_before_closing_body_tag(Config) ->
                 {before_closing_body_tag, #{html => "<div id=\"custom_html\"></div>"}}
             ]}
     },
-    {State, App} = make_stub(StubConfig),
+    {State, App} = make_stub(Post27, StubConfig),
 
     ok = make_readme(App),
     ok = make_license(App),
@@ -338,11 +383,11 @@ make_readme(App) ->
 make_license(App) ->
     file:write_file(filename:join(rebar_app_info:dir(App), "LICENSE"), <<"LICENSE">>).
 
-make_stub(#{name := Name, dir := Dir} = StubConfig) ->
+make_stub(Post27, #{name := Name, dir := Dir} = StubConfig) ->
     AppDir = filename:join(Dir, [Name]),
     mkdir_p(AppDir),
 
-    _SrcFile = write_src_file(AppDir, StubConfig),
+    _SrcFile = write_src_file(Post27, AppDir, StubConfig),
     _AppSrcFile = write_app_src_file(AppDir, StubConfig),
     _ConfigFile = write_config_file(AppDir, StubConfig),
     State = init_state(AppDir, StubConfig),
@@ -372,10 +417,10 @@ init_state(Dir, Config) ->
     LibDirs = rebar_dir:lib_dirs(State),
     rebar_app_discover:do(State, LibDirs).
 
-write_src_file(Dir, #{name := Name}) ->
+write_src_file(Post27, Dir, #{name := Name}) ->
     Erl = filename:join([Dir, "src", Name ++ ".erl"]),
     ok = filelib:ensure_dir(Erl),
-    ok = ec_file:write(Erl, erl_src_file(Name)).
+    ok = ec_file:write(Erl, erl_src_file(Post27, Name)).
 
 write_app_src_file(Dir, #{name := Name, app_src := #{version := Vsn}}) ->
     Filename = filename:join([Dir, "src", Name ++ ".app.src"]),
@@ -399,11 +444,25 @@ get_app_metadata(Name, Vsn) ->
         {links, []}
     ]}.
 
-erl_src_file(Name) ->
+erl_src_file(true = _Post27, Name) ->
+    io_lib:format(
+        "-module('~s').\n"
+        "-moduledoc \"\"\"\n"
+        "`~s` - a module\n"
+        "\"\"\".\n"
+        "-export([foo/0]).\n"
+        "-doc \"\"\"\n"
+        "foo/0 does nothing\n"
+        "\"\"\".\n"
+        "-spec foo() -> ok.\n"
+        "foo() -> ok.\n",
+        [Name, Name]
+    );
+erl_src_file(false = _Post27, Name) ->
     io_lib:format(
         "%%%-------------------------------------------------------------------\n"
         "%% @doc `~s' - a module\n"
-        "%% end\n"
+        "%% @end\n"
         "%%%-------------------------------------------------------------------\n"
         "-module('~s').\n"
         "-export([foo/0]).\n"
