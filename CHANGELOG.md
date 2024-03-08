@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.22]
+
+- Update to ex_doc 0.31.2
+- Fix wrong repo. owner and update PR links in changelog by @kianmeng in #75
+- Pull pre-build ex_doc from github for releases by @starbelly in #77
+- Fix link to example in README.md by @starbelly in #78
+- Fix with_mermaid by @MarkoMin in #64
+- Execute OTP-specific ex_doc (from priv) by @paulo-ferraz-oliveira in #83
+
 ## [v0.2.21]
 
 - Add Elixir script to bump ex_doc version from CLI ([#67](https://github.com/starbelly/rebar3_ex_doc/pull/67))
