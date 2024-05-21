@@ -88,6 +88,8 @@ jobs:
             rebar3: '3.22.1'
           - otp: '26'
             rebar3: '3.22.1'
+          - otp: '27'
+            rebar3: '3.23'
           - otp: 'master'
             rebar3: 'nightly'
     steps:
