@@ -14,15 +14,15 @@ jobs:
     strategy:
       matrix:
         triplet:
-          - otp: '24'
-            elixir: '1.13'
-            rebar3: '3.22.1'
           - otp: '25'
             elixir: '1.14'
             rebar3: '3.22.1'
           - otp: '26'
             elixir: '1.15'
             rebar3: '3.22.1'
+          - otp: '27'
+            elixir: '1.17'
+            rebar3: '3.23'
           - otp: 'master'
             elixir: 'main'
             rebar3: 'nightly'
@@ -45,14 +45,14 @@ jobs:
       max-parallel: 1
       matrix:
         triplet:
-          - otp: '24'
-            elixir: '1.13'
-            cache-id: oldest
           - otp: '25'
             elixir: '1.14'
-            cache-id: plus_one
+            cache-id: oldest
           - otp: '26'
             elixir: '1.15'
+            cache-id: plus_one
+          - otp: '27'
+            elixir: '1.17'
             cache-id: plus_two
           - otp: 'master'
             elixir: 'main'
@@ -82,8 +82,6 @@ jobs:
     strategy:
       matrix:
         pair:
-          - otp: '24'
-            rebar3: '3.22.1'
           - otp: '25'
             rebar3: '3.22.1'
           - otp: '26'

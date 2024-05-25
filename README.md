@@ -19,7 +19,10 @@ This plugin can be used to generate documentation on its own and also integrates
 ## Installation
 
 **NOTE**: This plugin and more importantly `ex_doc` depend on `edocs` capability to generate beam chunks per [EEP-48](https://www.erlang.org/doc/apps/erl_docgen/doc_storage.html).
-Thus, the minimum OTP version supported by this plugin is Erlang/OTP 24.
+
+## Maintenance window
+
+The minimum OTP version supported by this plugin is Erlang/OTP 25.
 
 ### As a global plugin
 

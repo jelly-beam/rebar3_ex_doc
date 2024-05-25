@@ -53,7 +53,7 @@ init(State) ->
     {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
 do(State) ->
     case otp_release() of
-        Min when Min >= 24 ->
+        Min when Min >= 25 ->
             Apps = get_apps(State),
             run(State, Apps);
         Ver ->
@@ -81,7 +81,7 @@ format_error({write_config, Err}) ->
     rebar_api:debug("Unknown error error occurred generating docs config: ~p", [Err]),
     "An unknown error occurred generating docs config. Run with DIAGNOSTICS=1 for more details.";
 format_error({unsupported_otp, Ver}) ->
-    Str = "You are using Erlang/OTP '~ts', but this plugin requires at least Erlang/OTP 24.",
+    Str = "You are using Erlang/OTP '~ts', but this plugin requires at least Erlang/OTP 25.",
     io_lib:format(Str, [integer_to_list(Ver)]);
 format_error({mermaid_vsn_not_string, Vsn}) ->
     Str = "ex_doc option 'with_mermaid' should be 'true', 'false', or string(). Got: ~p",
