@@ -18,7 +18,7 @@ This plugin can be used to generate documentation on its own and also integrates
 
 ## Installation
 
-**NOTE**: This plugin and more importantly `ex_doc` depend on `edocs` capability to generate beam chunks per [EEP-48](https://www.erlang.org/doc/apps/erl_docgen/doc_storage.html).
+**NOTE**: This plugin and more importantly `ex_doc` depend on `edocs` capability to generate beam chunks per [EEP-48](https://www.erlang.org/doc/apps/edoc/doc_storage.html).
 
 ## Maintenance window
 
