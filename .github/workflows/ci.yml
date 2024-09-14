@@ -69,6 +69,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Build ex_doc
         run: |
+          mix archive.install github hexpm/hex --force
           mix deps.get
           mix escript.build
       - name: Save cache for consumption  # We do this to use the file in a non-Elixir env.
