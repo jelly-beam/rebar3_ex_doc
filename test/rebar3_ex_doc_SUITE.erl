@@ -34,7 +34,7 @@ all_post_27(_OTPRelease) ->
 init_per_suite(Config) ->
     {ok, Cwd} = file:get_cwd(),
     ok = file:set_cwd("../../../.."),
-    {ok, _} = rebar_utils:sh("mix do deps.get, escript.build", [
+    {ok, _} = rebar_utils:sh("mix do archive.install github hexpm/hex --force, deps.get, escript.build", [
         {return_on_error, true}
     ]),
     file:set_cwd(Cwd),
@@ -297,8 +297,8 @@ mermaid_before_before_closing_body_tag(Config) ->
     %% Mermaid CDN followed by init script
     MermaidRE = "<script src=\"https://cdn.jsdelivr.net/npm/mermaid@.*/dist/mermaid.min.js\">(?s).*</script>(?s).*<script>(?s).*</script>",
     #{html := BeforeCloseBodyTagRE} = proplists:get_value(before_closing_body_tag, DocConfig),
-    
-    lists:foreach(fun (Doc) -> 
+
+    lists:foreach(fun (Doc) ->
                         {match, [{StartMermaid,_}]} = re:run(Doc, MermaidRE, []),
                         {match, [{StartBeforeCloseBodyTag,_}]} = re:run(Doc, BeforeCloseBodyTagRE, []),
                         ?assert(StartMermaid < StartBeforeCloseBodyTag)
