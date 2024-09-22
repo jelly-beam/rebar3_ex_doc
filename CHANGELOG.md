@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.24]
+
+- Use a more recent Hex version [#101](https://github.com/jelly-beam/rebar3_ex_doc/pull/101)
+- Fix broken link [#100](https://github.com/jelly-beam/rebar3_ex_doc/pull/100)
+- Sync support windows changes by [#96](ttps://github.com/jelly-beam/rebar3_ex_doc/pull/96)
+
 ## [v0.2.33]
 
 - Update to ex_doc 0.32.2
