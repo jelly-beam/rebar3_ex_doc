@@ -23,6 +23,7 @@ all_post_27(OTPRelease) when OTPRelease >= 27 ->
         generate_docs_post_27,
         generate_docs_alternate_rebar3_config_format_post_27,
         generate_docs_without_extra_post_27,
+        generate_docs_with_legacy_assets_post_27,
         generate_docs_with_current_app_set_post_27,
         generate_docs_with_bad_config_post_27,
         generate_docs_with_alternate_ex_doc_post_27,
@@ -70,6 +71,9 @@ generate_docs_without_extra_post_27(Config) ->
 
 generate_docs_overriding_output_set_in_config_post_27(Config) ->
     generate_docs_overriding_output_set_in_config([{post_27, true} | Config]).
+
+generate_docs_with_legacy_assets_post_27(Config) ->
+    generate_docs_with_assets([{legacy_assets, true}, {post_27, true} | Config]).
 
 generate_docs(Config) ->
     Post27 = proplists:get_value(post_27, Config, false),
@@ -123,6 +127,28 @@ generate_docs_without_extra(Config) ->
         dir => data_dir(Config),
         name => "no_extra_docs",
         config => {ex_doc,[]}
+    },
+    {State, App} = make_stub(Post27, StubConfig),
+
+    ok = make_readme(App),
+    ok = make_license(App),
+    {ok, _} = rebar3_ex_doc:do(State),
+    check_docs(App, State, StubConfig).
+
+generate_docs_with_assets(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
+    Assets =
+      case proplists:get_value(legacy_assets, Config, false) of
+          true -> "src";
+          false -> #{"src" => "assets"}
+      end,
+    StubConfig = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        name => "assets_docs",
+        config =>
+            {ex_doc,[{main,"README.md"},
+                     {assets, Assets}]}
     },
     {State, App} = make_stub(Post27, StubConfig),
 
@@ -326,6 +352,7 @@ mermaid_before_before_closing_body_tag(Config) ->
 
 check_docs(App, State, #{config := {ex_doc, DocConfig}} = _Stub) ->
     Extras = format_extras(proplists:get_value(extras, DocConfig, [])),
+    Assets = proplists:get_value(assets, DocConfig),
     AppDir = rebar_app_info:dir(App),
     BuildDir = filename:join(AppDir, "_build"),
     {ok, ConfigFile} = file:consult(filename:join([BuildDir, "default/lib/", rebar_app_info:name(App), "doc/docs.config"])),
