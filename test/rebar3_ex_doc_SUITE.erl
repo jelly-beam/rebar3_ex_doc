@@ -145,7 +145,9 @@ generate_docs_with_assets(Config) ->
     StubConfig = #{
         app_src => #{version => "0.1.0"},
         dir => data_dir(Config),
-        name => "assets_docs",
+        name => if is_map(Assets) -> "assets_map_docs";
+                   true -> "assets_docs"
+                end,
         config =>
             {ex_doc,[{main,"README.md"},
                      {assets, Assets}]}
@@ -370,7 +372,8 @@ check_docs(App, State, #{config := {ex_doc, DocConfig}} = _Stub) ->
         re:run(ModuleDoc, "foo/0 does nothing", [{capture, [0], binary}])
     ),
     check_readme(Extras, DocDir),
-    check_epub(Extras, DocDir, AppName, AppNameStr).
+    check_epub(Extras, DocDir, AppName, AppNameStr),
+    check_assets(Assets, DocDir, filename:join([BuildDir, "default/lib/", rebar_app_info:name(App)])).
 
 check_readme(Extras, DocDir) ->
     case lists:member(<<"README.md">>, Extras) of
@@ -396,6 +399,12 @@ check_epub(Extras, DocDir, AppName, AppNameStr) ->
             )
     end.
 
+check_assets(undefined, _DocDir, _Dir) ->
+     ok;
+check_assets(Assets, DocDir, Dir) when not is_map(Assets) ->
+     {ok, ExpectedFiles} = file:list_dir(filename:join(Dir, Assets)),
+     {ok, Files} = file:list_dir(filename:join(DocDir, "assets")),
+     ?assertEqual(lists:sort(Files), lists:sort(ExpectedFiles)).
 get_doc_dir(Opts, DocConfig) ->
     case proplists:get_value(output, Opts, proplists:get_value(output, DocConfig, "doc")) of
         undefined ->
