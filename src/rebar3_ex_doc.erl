@@ -338,6 +338,10 @@ to_ex_doc_format(ExDocOpts0) ->
     lists:foldl(
         fun ({api_reference = K, APIReference}, Opts) ->
                 [{K, APIReference} | Opts];
+            ({assets = K, Assets}, Opts) when is_map(Assets) ->
+                [{K, maps:fold(fun(Src, Target, Acc) ->
+                                   Acc#{to_binary(Src) => to_binary(Target)}
+                               end, #{}, Assets)} | Opts];
             ({assets = K, Assets}, Opts) ->
                 [{K, to_binary(Assets)} | Opts];
             ({extras = K, Extras}, Opts) ->
