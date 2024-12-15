@@ -22,6 +22,9 @@ all_post_27(OTPRelease) when OTPRelease >= 27 ->
         mermaid_before_before_closing_body_tag_post_27,
         generate_docs_post_27,
         generate_docs_alternate_rebar3_config_format_post_27,
+        generate_docs_without_extra_post_27,
+        generate_docs_with_legacy_assets_post_27,
+        generate_docs_with_assets_post_27,
         generate_docs_with_current_app_set_post_27,
         generate_docs_with_bad_config_post_27,
         generate_docs_with_alternate_ex_doc_post_27,
@@ -64,8 +67,17 @@ generate_docs_with_alternate_ex_doc_post_27(Config) ->
 generate_docs_with_output_set_in_config_post_27(Config) ->
     generate_docs_with_output_set_in_config([{post_27, true} | Config]).
 
+generate_docs_without_extra_post_27(Config) ->
+    generate_docs_without_extra([{post_27, true} | Config]).
+
 generate_docs_overriding_output_set_in_config_post_27(Config) ->
     generate_docs_overriding_output_set_in_config([{post_27, true} | Config]).
+
+generate_docs_with_legacy_assets_post_27(Config) ->
+    generate_docs_with_assets([{legacy_assets, true}, {post_27, true} | Config]).
+
+generate_docs_with_assets_post_27(Config) ->
+    generate_docs_with_assets([{post_27, true} | Config]).
 
 generate_docs(Config) ->
     Post27 = proplists:get_value(post_27, Config, false),
@@ -104,6 +116,45 @@ generate_docs_alternate_rebar3_config_format(Config) ->
                     }
                 }]}
             ]}
+    },
+    {State, App} = make_stub(Post27, StubConfig),
+
+    ok = make_readme(App),
+    ok = make_license(App),
+    {ok, _} = rebar3_ex_doc:do(State),
+    check_docs(App, State, StubConfig).
+
+generate_docs_without_extra(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
+    StubConfig = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        name => "no_extra_docs",
+        config => {ex_doc,[]}
+    },
+    {State, App} = make_stub(Post27, StubConfig),
+
+    ok = make_readme(App),
+    ok = make_license(App),
+    {ok, _} = rebar3_ex_doc:do(State),
+    check_docs(App, State, StubConfig).
+
+generate_docs_with_assets(Config) ->
+    Post27 = proplists:get_value(post_27, Config, false),
+    Assets =
+      case proplists:get_value(legacy_assets, Config, false) of
+          true -> "src";
+          false -> #{"src" => "erlang_source"}
+      end,
+    StubConfig = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        name =>
+            if is_map(Assets) -> "assets_map_docs";
+               true -> "assets_docs"
+            end,
+        config =>
+            {ex_doc,[{assets, Assets}]}
     },
     {State, App} = make_stub(Post27, StubConfig),
 
@@ -306,36 +357,74 @@ mermaid_before_before_closing_body_tag(Config) ->
                     [ReadMeDoc, ModuleDoc]).
 
 check_docs(App, State, #{config := {ex_doc, DocConfig}} = _Stub) ->
-    Extras = format_extras(proplists:get_value(extras, DocConfig)),
+    Extras = format_extras(proplists:get_value(extras, DocConfig, [])),
+    Assets = proplists:get_value(assets, DocConfig),
     AppDir = rebar_app_info:dir(App),
     BuildDir = filename:join(AppDir, "_build"),
     {ok, ConfigFile} = file:consult(filename:join([BuildDir, "default/lib/", rebar_app_info:name(App), "doc/docs.config"])),
-    ExpExtras = proplists:get_value(extras, ConfigFile),
+    ExpExtras = proplists:get_value(extras, ConfigFile, []),
     ?assertMatch(Extras, ExpExtras),
     AppName = rebar_app_info:name(App),
     AppNameStr = rebar_utils:to_list(AppName),
     {Opts, _Args} = rebar_state:command_parsed_args(State),
     DocDir = filename:join(AppDir, get_doc_dir(Opts, DocConfig)),
     {ok, IndexDoc} = file:read_file(filename:join(DocDir, "index.html")),
-    {ok, ModuleDoc} = file:read_file(filename:join(DocDir, AppNameStr ++ ".html")),
-    {ok, ReadMeDoc} = file:read_file(filename:join(DocDir, "readme.html")),
-    {ok, [_ | _]} = zip:unzip(filename:join(DocDir, AppNameStr ++ ".epub"), [{cwd, DocDir}]),
-    {ok, EpubReadMe} = file:read_file(filename:join(DocDir, "OEBPS/readme.xhtml")),
-    
     ?assertMatch({match, [AppName]}, re:run(IndexDoc, AppName, [{capture, [0], binary}])),
-    ?assertMatch(
-        {match, [<<"PLEASE READ ME">>]},
-        re:run(ReadMeDoc, "PLEASE READ ME", [{capture, [0], binary}])
-    ),
+    {ok, ModuleDoc} = file:read_file(filename:join(DocDir, AppNameStr ++ ".html")),
     ?assertMatch(
         {match, [<<"foo/0 does nothing">>]},
         re:run(ModuleDoc, "foo/0 does nothing", [{capture, [0], binary}])
     ),
-    ?assertMatch({match, [AppName]}, re:run(EpubReadMe, AppName, [{capture, [0], binary}])),
-    ?assertMatch(
-        {match, [<<"PLEASE READ ME">>]},
-        re:run(EpubReadMe, "PLEASE READ ME", [{capture, [0], binary}])
-    ).
+    check_readme(Extras, DocDir),
+    check_epub(Extras, DocDir, AppName, AppNameStr),
+    check_assets(Assets, DocDir, filename:join([BuildDir, "default/lib/", rebar_app_info:name(App)])).
+
+check_readme(Extras, DocDir) ->
+    case lists:member(<<"README.md">>, Extras) of
+        false -> ok;
+        true ->
+            {ok, ReadMe} = file:read_file(filename:join(DocDir, "readme.html")),
+            ?assertMatch(
+                {match, [<<"PLEASE READ ME">>]},
+                re:run(ReadMe, "PLEASE READ ME", [{capture, [0], binary}])
+            )
+    end.
+
+check_epub(Extras, DocDir, AppName, AppNameStr) ->
+    {ok, [_ | _]} = zip:unzip(filename:join(DocDir, AppNameStr ++ ".epub"), [{cwd, DocDir}]),
+    case lists:member(<<"README.md">>, Extras) of
+        false -> ok;
+        true ->
+           {ok, EpubReadMe} = file:read_file(filename:join(DocDir, "OEBPS/readme.xhtml")),
+            ?assertMatch({match, [AppName]}, re:run(EpubReadMe, AppName, [{capture, [0], binary}])),
+            ?assertMatch(
+                {match, [<<"PLEASE READ ME">>]},
+                re:run(EpubReadMe, "PLEASE READ ME", [{capture, [0], binary}])
+            )
+    end.
+
+check_assets(undefined, _DocDir, _Dir) ->
+     ok;
+check_assets(Assets, DocDir, Dir) when not is_map(Assets) ->
+     {ok, ExpectedFiles} = file:list_dir(filename:join(Dir, Assets)),
+     {ok, Files} = file:list_dir(filename:join(DocDir, "assets")),
+     ?assertEqual(lists:sort(ExpectedFiles), lists:sort(Files));
+check_assets(Assets, DocDir, Dir) when is_map(Assets) ->
+     %% The semantics of assets is not well defined. It seems that Src and Target
+     %% can only be directories and that one cannot copy a specific file this way
+     ExpectedFiles =
+        maps:fold(fun(Src, Target, Acc) ->
+                      case filelib:is_dir(filename:join(Dir, Src)) of
+                          true ->
+                             {ok, Fs} = file:list_dir(filename:join(Dir, Src)),
+                             [filename:join([Target, F]) || F <- Fs] ++ Acc;
+                          false ->
+                             [Target | Acc ]
+                      end
+                  end, [], Assets),
+     lists:foreach(fun(ExpectedFile) ->
+                       {ok, _} = file:read_file(filename:join(DocDir, ExpectedFile))
+                   end, ExpectedFiles).
 
 get_doc_dir(Opts, DocConfig) ->
     case proplists:get_value(output, Opts, proplists:get_value(output, DocConfig, "doc")) of
