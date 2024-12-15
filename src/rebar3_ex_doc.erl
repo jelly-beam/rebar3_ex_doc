@@ -152,6 +152,7 @@ compile(State) ->
 -spec gen_chunks(rebar_state:t(), file:filename()) -> {rebar_state:t(), rebar_app_info:t(), file:filename()}.
 gen_chunks(State, App) ->
     OutDir = filename:join(rebar_app_info:out_dir(App), "doc"),
+    ErlOpts = rebar_state:get(State, erl_opts, []),
     EdocOptsFromRebarConfig = lists:keysort(1, proplists:unfold(rebar_state:get(State, edoc_opts, []))),
     Prv = providers:get_provider(edoc, rebar_state:providers(State)),
     EdocOptsDefault = lists:keysort(1, [
@@ -159,7 +160,7 @@ gen_chunks(State, App) ->
         {doclet, edoc_doclet_chunks},
         {layout, edoc_layout_chunks},
         {dir, OutDir},
-        {includes, ["src", "include"]}
+        {includes, ["src", "include"] ++ [ Path || {i, Path} <- ErlOpts ]}
     ]),
     EdocOpts = lists:keymerge(1, EdocOptsFromRebarConfig, EdocOptsDefault),
     State1 = rebar_state:set(State, edoc_opts, EdocOpts),
