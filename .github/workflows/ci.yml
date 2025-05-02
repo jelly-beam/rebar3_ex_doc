@@ -16,13 +16,13 @@ jobs:
       matrix:
         triplet:
           - otp: '25'
-            elixir: '1.14'
+            elixir: '1.16'
             rebar3: '3.22.1'
           - otp: '26'
-            elixir: '1.15'
+            elixir: '1.17'
             rebar3: '3.22.1'
           - otp: '27'
-            elixir: '1.17'
+            elixir: '1.18'
             rebar3: '3.23'
           - otp: 'master'
             elixir: 'main'
@@ -48,13 +48,13 @@ jobs:
       matrix:
         triplet:
           - otp: '25'
-            elixir: '1.14'
+            elixir: '1.16'
             cache-id: oldest
           - otp: '26'
-            elixir: '1.15'
+            elixir: '1.17'
             cache-id: plus_one
           - otp: '27'
-            elixir: '1.17'
+            elixir: '1.18'
             cache-id: plus_two
           - otp: 'master'
             elixir: 'main'
