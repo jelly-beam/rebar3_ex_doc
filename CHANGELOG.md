@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.28]
+
+Add backwards compat support for extras options as maps [#112](https://github.com/jelly-beam/rebar3_ex_doc/pull/112)
+
 ## [v0.2.27]
 
 - Update to ex_doc 0.38.1 [#111](https://github.com/jelly-beam/rebar3_ex_doc/pull/111) 
