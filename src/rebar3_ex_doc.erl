@@ -400,6 +400,7 @@ to_ex_doc_format_extras(Extras0) ->
     ).
 
 to_ex_doc_format_extras_opts(Extras) ->
+    maps:to_list(
     maps:map(
         fun (filename, Filename) ->
                 to_binary(Filename);
@@ -410,7 +411,7 @@ to_ex_doc_format_extras_opts(Extras) ->
                 Value
         end,
         Extras
-    ).
+    )).
 
 to_binary(Term) when is_list(Term) ->
     list_to_binary(Term);
