@@ -448,6 +448,7 @@ format_extras(Extras0) ->
     ).
 
 format_extras_opts(Extras) ->
+    maps:to_list(
     maps:map(
         fun (filename, Filename) when is_list(Filename) ->
                 list_to_binary(Filename);
@@ -457,7 +458,7 @@ format_extras_opts(Extras) ->
                 Value
         end,
         Extras
-    ).
+    )).
 
 compile_src_file(App) ->
     Dir = rebar_app_info:dir(App),
