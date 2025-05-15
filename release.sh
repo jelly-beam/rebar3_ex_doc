@@ -60,6 +60,8 @@ do
   echo "Size of priv/ex_doc_otp_${OTP_VER}: $SIZE"
 done
 
+cd ../../
+
 rebar3 ex_doc
 
 echo
