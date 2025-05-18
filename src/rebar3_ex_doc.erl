@@ -341,19 +341,19 @@ to_ex_doc_format(ExDocOpts0) ->
                 [{K, APIReference} | Opts];
             ({assets = K, Assets}, Opts) when is_map(Assets) ->
                 [{K, maps:fold(fun(Src, Target, Acc) ->
-                                   Acc#{to_binary(Src) => to_binary(Target)}
+                                   Acc#{maybe_to_binary({assets, source}, Src) => maybe_to_binary({assets, target}, Target)}
                                end, #{}, Assets)} | Opts];
             ({assets = K, Assets}, Opts) ->
-                [{K, to_binary(Assets)} | Opts];
+                [{K, maybe_to_binary(assets, Assets)} | Opts];
             ({extras = K, Extras}, Opts) ->
                 [{K, to_ex_doc_format_extras(Extras)} | Opts];
             ({homepage_url = K, HomepageURL}, Opts) ->
-                [{K, to_binary(HomepageURL)} | Opts];
+                [{K, maybe_to_binary(homepage_url, HomepageURL)} | Opts];
             ({main = K, Main}, Opts) ->
                 FilenameNoExt = filename:rootname(Main),
-                [{K, to_lower_binary(FilenameNoExt)} | Opts];
+                [{K, maybe_to_lower_binary(main, FilenameNoExt)} | Opts];
             ({source_url = K, SourceURL}, Opts) ->
-                [{K, to_binary(SourceURL)} | Opts];
+                [{K, maybe_to_binary(source_url, SourceURL)} | Opts];
             ({proglang, _} = V, Opts) -> % internal exception
                 [V | Opts];
             ({logo, _} = V, Opts) ->
@@ -363,10 +363,10 @@ to_ex_doc_format(ExDocOpts0) ->
             ({before_closing_head_tag, _} = V, Opts) ->
                 [V | Opts];
             ({skip_undefined_reference_warnings_on = K, Skips0}, Opts) ->
-                Skips = [to_binary(Skip) || Skip <- Skips0],
+                Skips = [maybe_to_binary(skip_undefined_reference_warnings_on, Skip) || Skip <- Skips0],
                 [{K, Skips} | Opts];
             ({output = K, OutputDir}, Opts) ->
-                [{K, to_binary(OutputDir)} | Opts];
+                [{K, maybe_to_binary(output, OutputDir)} | Opts];
             ({prefix_ref_vsn_with_v, _}, Opts) ->
                 Opts;
             ({with_mermaid, Vsn}, Opts) ->
@@ -391,7 +391,7 @@ to_ex_doc_format_extras(Extras0) ->
         fun ({Extra, ExtraOpts}, Extras) ->
                 [{to_atom(Extra), to_ex_doc_format_extras_opts(ExtraOpts)} | Extras];
             (Extra, Extras) when is_list(Extra) ->
-                [to_binary(Extra) | Extras];
+                [maybe_to_binary(extra, Extra) | Extras];
             (OtherExtra, Extras) -> % unknown: leaving as is
                 [OtherExtra | Extras]
         end,
@@ -399,19 +399,46 @@ to_ex_doc_format_extras(Extras0) ->
         Extras0
     ).
 
+to_ex_doc_format_extras_opts(Extras) when is_map(Extras) ->
+    Warning = "giving a map as the value for configuration is deprecated, please give a prop list instead: ~n~n~n~p~n",
+    PropList = maps:to_list(Extras),
+    rebar_api:warn(Warning, [PropList]),
+    to_ex_doc_format_extras_opts(PropList);
+
 to_ex_doc_format_extras_opts(Extras) ->
-    maps:to_list(
-    maps:map(
-        fun (filename, Filename) ->
-                to_binary(Filename);
-            (title, Title) ->
-                to_binary(Title);
-            (Key, Value) ->
-                rebar_api:warn("unknown ex_doc.extras option ~p := ~p", [Key, Value]),
-                Value
-        end,
-        Extras
-    )).
+    lists:foldr(fun (Prop, Acc) -> [maybe_extras_item_to_binary(Prop)|Acc] end, [], Extras).
+
+maybe_extras_item_to_binary({filename, FileName}) when is_list(FileName) ->
+  Warning = "giving a string to filename in extras is deprecated, please give a binary instead.",
+  rebar_api:warn(Warning, []),
+  {filename, to_binary(FileName)};
+
+maybe_extras_item_to_binary({title, Title}) when is_list(Title) ->
+  Warning = "giving a string to title in extras is deprecated, please give a binary instead: ~n~n~n~p~n",
+  rebar_api:warn(Warning, [{title, to_binary(Title)}]),
+  {title, to_binary(Title)};
+
+maybe_extras_item_to_binary({url, Url}) when is_list(Url) ->
+  Warning = "giving a string to url in extras is deprecated, please give a binary instead.",
+  rebar_api:warn(Warning, []),
+  {url, to_binary(Url)};
+
+maybe_extras_item_to_binary({source, Source}) when is_list(Source) ->
+  Warning = "giving a string to source in extras is deprecated, please give a binary instead.",
+  rebar_api:warn(Warning, []),
+  {source, to_binary(Source)};
+
+maybe_extras_item_to_binary(Prop) -> Prop.
+
+maybe_to_binary(_item, Bin) when is_binary(Bin) -> Bin;
+maybe_to_binary({assets, Item}, Str) ->
+  Warning = "giving a string for assets ~ts is deprecated, please give a binary instead.",
+  rebar_api:warn(Warning, [Item]),
+  to_binary(Str);
+maybe_to_binary(Item, Str) ->
+  Warning = "giving a string to ~ts is deprecated, please give a binary instead.",
+  rebar_api:warn(Warning, [Item]),
+  to_binary(Str).
 
 to_binary(Term) when is_list(Term) ->
     list_to_binary(Term);
@@ -419,6 +446,13 @@ to_binary(Term) when is_atom(Term) ->
     atom_to_binary(Term, latin1);
 to_binary(Term) -> % unknown: leaving as is
     Term.
+
+maybe_to_lower_binary(_item, Bin) when is_binary(Bin) ->
+    to_lower_binary(Bin);
+maybe_to_lower_binary(Item, Bin) ->
+  Warning = "giving a string to ~ts in extras is deprecated, please give a binary instead.",
+  rebar_api:warn(Warning, [Item]),
+  to_lower_binary(Bin).
 
 to_lower_binary(Term) when is_binary(Term) ->
     to_lower_binary(binary_to_list(Term));
@@ -606,7 +640,7 @@ do_merge_before_closing_body_tag(undefined, Custom) ->
     Custom;
 do_merge_before_closing_body_tag(MermaidMap, undefined) ->
     MermaidMap;
-do_merge_before_closing_body_tag(MermaidMap, {M,F,Args}) 
+do_merge_before_closing_body_tag(MermaidMap, {M,F,Args})
         when is_atom(M) and is_atom(F) and is_list(Args) ->
     CustomMap = #{html => erlang:apply(M, F, [html|Args]),
                   epub => erlang:apply(M, F, [epub|Args])},
