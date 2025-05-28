@@ -1,7 +1,7 @@
 # rebar3_ex_doc
 
 [![Build Status](https://github.com/starbelly/rebar3_ex_doc/actions/workflows/ci.yml/badge.svg)](https://github.com/starbelly/rebar3_ex_doc/actions/workflows/ci.yml)
-[![Erlang/OTP Versions](https://img.shields.io/badge/erlang%2Fotp-25%7C26%7C27-blue)](http://www.erlang.org)
+[![Erlang/OTP Versions](https://img.shields.io/badge/erlang%2Fotp-26%7C27%7C28-blue)](http://www.erlang.org)
 [![Hex Version](https://img.shields.io/hexpm/v/rebar3_ex_doc.svg)](https://hex.pm/packages/rebar3_ex_doc)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/rebar3_ex_doc/)
 [![Total Download](https://img.shields.io/hexpm/dt/rebar3_ex_doc.svg)](https://hex.pm/packages/rebar3_ex_doc)
@@ -22,7 +22,7 @@ This plugin can be used to generate documentation on its own and also integrates
 
 ## Maintenance window
 
-The minimum OTP version supported by this plugin is Erlang/OTP 25.
+The minimum OTP version supported by this plugin is Erlang/OTP 26.
 
 ### As a global plugin
 
