@@ -76,6 +76,8 @@ open doc/index.html
 echo
 yes_or_exit  "Did everything look ok?"
 
+cd _checkouts/rebar3_ex_doc
+
 for OTP_VER in "${EXPECTED_OTP[@]}"
 do
     if [ ! -f "priv/ex_doc_otp_${OTP_VER}" ]; then
