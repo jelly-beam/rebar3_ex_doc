@@ -4,7 +4,7 @@ defmodule Rebar3ExDoc.MixProject do
   def project do
     [
       app: :rebar3_ex_doc,
-      version: "0.2.28",
+      version: "0.2.29",
       elixir: "~> 1.13",
       deps: [ex_doc: "#{@ex_doc_version}"],
       escript: [
