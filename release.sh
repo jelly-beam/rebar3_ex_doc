@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-EXPECTED_OTP=("25" "26" "27")
+EXPECTED_OTP=("26" "27" "28")
 
 yes_or_exit() {
     while true; do
