@@ -424,7 +424,7 @@ maybe_extras_item_to_binary({url, Url}) when is_list(Url) ->
   {url, to_binary(Url)};
 
 maybe_extras_item_to_binary({source, Source}) when is_list(Source) ->
-  Warning = "giving a string to source in extras is deprecated, please give a binary instead.",
+  Warning = "please specify source (in extras) as binary, as the support for strings is deprecated",
   rebar_api:warn(Warning, []),
   {source, to_binary(Source)};
 
