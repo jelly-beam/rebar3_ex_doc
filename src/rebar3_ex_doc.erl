@@ -450,7 +450,7 @@ to_binary(Term) -> % unknown: leaving as is
 maybe_to_lower_binary(_item, Bin) when is_binary(Bin) ->
     to_lower_binary(Bin);
 maybe_to_lower_binary(Item, Bin) ->
-  Warning = "giving a string to ~ts in extras is deprecated, please give a binary instead.",
+  Warning = "please specify ~ts (in extras) as binary, as the support for strings is deprecated",
   rebar_api:warn(Warning, [Item]),
   to_lower_binary(Bin).
 
