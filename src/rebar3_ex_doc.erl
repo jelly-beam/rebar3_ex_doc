@@ -436,7 +436,7 @@ maybe_to_binary({assets, Item}, Str) ->
   rebar_api:warn(Warning, [Item]),
   to_binary(Str);
 maybe_to_binary(Item, Str) ->
-  Warning = "giving a string to ~ts is deprecated, please give a binary instead.",
+  Warning = "please specify ~ts as binary, as the support for strings is deprecated",
   rebar_api:warn(Warning, [Item]),
   to_binary(Str).
 
