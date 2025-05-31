@@ -409,7 +409,7 @@ to_ex_doc_format_extras_opts(Extras) ->
     lists:foldr(fun (Prop, Acc) -> [maybe_extras_item_to_binary(Prop)|Acc] end, [], Extras).
 
 maybe_extras_item_to_binary({filename, FileName}) when is_list(FileName) ->
-  Warning = "giving a string to filename in extras is deprecated, please give a binary instead.",
+  Warning = "please specify filenames (in extras) as binary, as the support for strings is deprecated",
   rebar_api:warn(Warning, []),
   {filename, to_binary(FileName)};
 
