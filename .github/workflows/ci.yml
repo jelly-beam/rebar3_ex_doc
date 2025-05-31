@@ -21,15 +21,15 @@ jobs:
           - otp: '27'
             elixir: '1.17'
             rebar3: '3.22.1'
-          - otp: '28.0'
-            elixir: '1.18.4'
-            rebar3: '3.23'
+          - otp: '28'
+            elixir: '1.18.4-otp-27'
+            rebar3: '3.25'
           - otp: 'master'
             elixir: 'main'
             rebar3: 'nightly'
     steps:
       - uses: actions/checkout@v2
-      - uses: erlef/setup-beam@v1
+      - uses: erlef/setup-beam@8aa8a857c6be0daae6e97272bb299d5b942675a4
         with:
           otp-version: ${{matrix.triplet.otp}}
           elixir-version: ${{matrix.triplet.elixir}}
@@ -54,7 +54,7 @@ jobs:
             elixir: '1.17'
             cache-id: plus_one
           - otp: '28'
-            elixir: '1.18'
+            elixir: '1.18.4-otp-27'
             cache-id: plus_two
           - otp: 'master'
             elixir: 'main'
@@ -91,7 +91,7 @@ jobs:
           - otp: '27'
             rebar3: '3.22.1'
           - otp: '28'
-            rebar3: '3.23'
+            rebar3: '3.25'
           - otp: 'master'
             rebar3: 'nightly'
     steps:
@@ -118,7 +118,7 @@ jobs:
           path: priv
           key: consumer-cache-plus_three
       - name: Setup Erlang
-        uses: erlef/setup-beam@v1
+        uses: erlef/setup-beam@8aa8a857c6be0daae6e97272bb299d5b942675a4
         with:
           otp-version: ${{matrix.pair.otp}}
           rebar3-version: ${{matrix.pair.rebar3}}
