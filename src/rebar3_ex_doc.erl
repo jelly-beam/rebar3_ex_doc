@@ -419,7 +419,7 @@ maybe_extras_item_to_binary({title, Title}) when is_list(Title) ->
   {title, to_binary(Title)};
 
 maybe_extras_item_to_binary({url, Url}) when is_list(Url) ->
-  Warning = "giving a string to url in extras is deprecated, please give a binary instead.",
+  Warning = "please specify url (in extras) as binary, as the support for strings is deprecated",
   rebar_api:warn(Warning, []),
   {url, to_binary(Url)};
 
