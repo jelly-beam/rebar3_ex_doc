@@ -61,7 +61,7 @@ jobs:
             cache-id: plus_three
     steps:
       - name: Setup Elixir
-        uses: erlef/setup-beam@v1
+        uses: erlef/setup-beam@8aa8a857c6be0daae6e97272bb299d5b942675a4
         with:
           otp-version: ${{matrix.triplet.otp}}
           elixir-version: ${{matrix.triplet.elixir}}
