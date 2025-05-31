@@ -414,7 +414,7 @@ maybe_extras_item_to_binary({filename, FileName}) when is_list(FileName) ->
   {filename, to_binary(FileName)};
 
 maybe_extras_item_to_binary({title, Title}) when is_list(Title) ->
-  Warning = "giving a string to title in extras is deprecated, please give a binary instead: ~n~n~n~p~n",
+  Warning = "please specify titles (in extras) as binary, as the support for strings is deprecated: ~n~n~n~p~n",
   rebar_api:warn(Warning, [{title, to_binary(Title)}]),
   {title, to_binary(Title)};
 
