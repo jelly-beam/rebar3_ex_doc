@@ -432,7 +432,7 @@ maybe_extras_item_to_binary(Prop) -> Prop.
 
 maybe_to_binary(_item, Bin) when is_binary(Bin) -> Bin;
 maybe_to_binary({assets, Item}, Str) ->
-  Warning = "giving a string for assets ~ts is deprecated, please give a binary instead.",
+  Warning = "please specify assets ~ts as binary, as the support for strings is deprecated",
   rebar_api:warn(Warning, [Item]),
   to_binary(Str);
 maybe_to_binary(Item, Str) ->
