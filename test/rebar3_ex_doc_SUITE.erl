@@ -325,11 +325,11 @@ mermaid_before_before_closing_body_tag(Config) ->
         name => AppNameStr,
         config =>
             {ex_doc, [
-                {source_url, ~B"https://github.com/eh/eh"},
-                {extras, [~B"README.md", ~B"LICENSE"]},
-                {main, ~B"readme"},
+                {source_url, <<"https://github.com/eh/eh">>},
+                {extras, [<<"README.md">>, <<"LICENSE">>]},
+                {main, <<"readme">>},
                 {with_mermaid, true},
-                {before_closing_body_tag, #{html => ~B[<div id="custom_html"></div>]}}
+                {before_closing_body_tag, #{html => <<"<div id=\"custom_html\"></div>">>}}
             ]}
     },
     {State, App} = make_stub(Post27, StubConfig),
