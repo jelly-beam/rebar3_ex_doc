@@ -400,7 +400,7 @@ to_ex_doc_format_extras(Extras0) ->
     ).
 
 to_ex_doc_format_extras_opts(Extras) when is_map(Extras) ->
-    Warning = "please specify configuration options with proplists, as the support for maps is deprecated : ~n~n~n~p~n",
+    Warning = "please specify configuration options with proplists, as the support for maps is deprecated: ~n~n~n~p~n",
     PropList = maps:to_list(Extras),
     rebar_api:warn(Warning, [PropList]),
     to_ex_doc_format_extras_opts(PropList);
