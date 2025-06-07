@@ -329,7 +329,7 @@ mermaid_before_before_closing_body_tag(Config) ->
                 {extras, [<<"README.md">>, <<"LICENSE">>]},
                 {main, <<"readme">>},
                 {with_mermaid, true},
-                {before_closing_body_tag, #{html => "<div id=\"custom_html\"></div>"}}
+                {before_closing_body_tag, #{html => <<"<div id=\"custom_html\"></div>">>}}
             ]}
     },
     {State, App} = make_stub(Post27, StubConfig),
