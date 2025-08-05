@@ -347,6 +347,14 @@ to_ex_doc_format(ExDocOpts0) ->
                 [{K, to_binary(Assets)} | Opts];
             ({extras = K, Extras}, Opts) ->
                 [{K, to_ex_doc_format_extras(Extras)} | Opts];
+            ({deps = K, Deps}, Opts) when is_list(Deps) ->
+                [{K, [{Dep, to_binary(Url)} || {Dep, Url} <- Deps]} | Opts];
+            ({groups_for_modules = K, Groups}, Opts) when is_list(Groups) ->
+                [{K, [{to_binary(GroupName), L} || {GroupName, L} <- Groups]} | Opts];
+            ({groups_for_extras = K, Groups}, Opts) when is_list(Groups) ->
+                [{K, [{to_binary(GroupName), L} || {GroupName, L} <- Groups]} | Opts];
+            ({filter_modules = K, Filter}, Opts) ->
+                [{K, to_binary(Filter)} | Opts];
             ({homepage_url = K, HomepageURL}, Opts) ->
                 [{K, to_binary(HomepageURL)} | Opts];
             ({main = K, Main}, Opts) ->
@@ -361,6 +369,8 @@ to_ex_doc_format(ExDocOpts0) ->
             ({before_closing_body_tag, _} = V, Opts) ->
                 [V | Opts];
             ({before_closing_head_tag, _} = V, Opts) ->
+                [V | Opts];
+            ({before_closing_footer_tag, _} = V, Opts) ->
                 [V | Opts];
             ({skip_undefined_reference_warnings_on = K, Skips0}, Opts) ->
                 Skips = [to_binary(Skip) || Skip <- Skips0],
