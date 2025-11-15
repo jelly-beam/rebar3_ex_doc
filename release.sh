@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-EXPECTED_OTP=("26" "27" "28")
+EXPECTED_OTP=("25" "26" "27")
 
 yes_or_exit() {
     while true; do
@@ -60,8 +60,6 @@ do
   echo "Size of priv/ex_doc_otp_${OTP_VER}: $SIZE"
 done
 
-cd ../../
-
 rebar3 ex_doc
 
 echo
@@ -74,9 +72,8 @@ yes_or_exit "Open up the documentation?"
 open doc/index.html
 
 echo
-yes_or_exit  "Did everything look ok?"
 
-cd _checkouts/rebar3_ex_doc
+yes_or_exit  "Did everything look ok?"
 
 for OTP_VER in "${EXPECTED_OTP[@]}"
 do
