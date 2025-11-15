@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.2.31]
+
+- Add more ex_doc config support [#120](https://github.com/jelly-beam/rebar3_ex_doc/pull/120) 
+## [v0.2.30] 
+
+ - updated release to correct problems in assets from 0.2.29 
+
 ## [v0.2.29]
 
 - Update to ex_doc 0.38.2 [#116](https://github.com/jelly-beam/rebar3_ex_doc/pull/116)
