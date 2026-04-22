@@ -48,8 +48,8 @@ Simply add the configuration below to your `rebar.config` and adjust for your pr
 
 ```erlang
 {ex_doc, [
-     {extras, ["README.md", "LICENSE"]},
-     {main, "README.md"},
+     {extras, [<<"README.md">>, <<"LICENSE">>]},
+     {main, <<"readme">>},
      {source_url, "https://github.com/namespace/your_app"}
 ]}.
 ```
@@ -59,14 +59,14 @@ For further customization, see the configuration for `rebar3_ex_doc`:
 ```erlang
 {ex_doc, [
     {extras, [
-          {"CHANGELOG.md", #{title => "Changelog"}},
-          {"README.md", #{title => "Overview"}},
-          {"LICENSE.md", #{title => "License"}}
+          {<<"CHANGELOG.md">>, [{title, <<"Changelog">>}]},
+          {<<"README.md">>, [{title, <<"Overview">>}]},
+          {<<"LICENSE.md">>, [{title, <<"License">>}]}
     ]},
-    {main, "README.md"},
-    {homepage_url, "https://github.com/starbelly/rebar3_ex_doc"},
-    {source_url, "https://github.com/starbelly/rebar3_ex_doc"},
-    {assets, "assets"},
+    {main, <<"readme">>},
+    {homepage_url, <<"https://github.com/starbelly/rebar3_ex_doc">>},
+    {source_url, <<"https://github.com/starbelly/rebar3_ex_doc">>},
+    {assets, <<"assets">>},
     {api_reference, false}
 ]}.
 ```
@@ -118,9 +118,9 @@ If you wish to generate documentation outside the context of a package you may s
 ```erlang
 {ex_doc, [
      {package, false},
-     {extras, ["README.md", "LICENSE"]},
-     {main, "README.md"},
-     {source_url, "https://github.com/namespace/your_app"}
+     {extras, [<<"README.md">>, <<"LICENSE">>]},
+     {main, <<"README.md">>},
+     {source_url, <<"https://github.com/namespace/your_app">>}
 ]}.
 ```
 
@@ -168,9 +168,9 @@ If your project doesn't follow this convention you may opt out of it with `{pref
 ```erlang
 {ex_doc, [
      {prefix_ref_vsn_with_v, false},
-     {extras, ["README.md", "LICENSE"]},
-     {main, "README.md"},
-     {source_url, "https://github.com/namespace/your_app"}
+     {extras, [<<"README.md">>, <<"LICENSE">>]},
+     {main, <<"README.md">>},
+     {source_url, <<"https://github.com/namespace/your_app">>}
 ]}.
 ```
 
