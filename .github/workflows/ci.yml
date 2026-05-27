@@ -15,15 +15,15 @@ jobs:
       fail-fast: false
       matrix:
         triplet:
-          - otp: '25'
-            elixir: '1.16'
-            rebar3: '3.22.1'
-          - otp: '26'
-            elixir: '1.17'
-            rebar3: '3.22.1'
           - otp: '27'
+            elixir: '1.17'
+            rebar3: '3.25.1'
+          - otp: '28'
             elixir: '1.18'
-            rebar3: '3.23'
+            rebar3: '3.26.0'
+          - otp: '29'
+            elixir: '1.19'
+            rebar3: '3.27'
           - otp: 'master'
             elixir: 'main'
             rebar3: 'nightly'
@@ -47,14 +47,14 @@ jobs:
       max-parallel: 1
       matrix:
         triplet:
-          - otp: '25'
-            elixir: '1.16'
-            cache-id: oldest
-          - otp: '26'
-            elixir: '1.17'
-            cache-id: plus_one
           - otp: '27'
+            elixir: '1.17'
+            cache-id: oldest
+          - otp: '28'
             elixir: '1.18'
+            cache-id: plus_one
+          - otp: '29'
+            elixir: '1.19'
             cache-id: plus_two
           - otp: 'master'
             elixir: 'main'
@@ -86,12 +86,12 @@ jobs:
       fail-fast: false
       matrix:
         pair:
-          - otp: '25'
-            rebar3: '3.22.1'
-          - otp: '26'
-            rebar3: '3.22.1'
           - otp: '27'
-            rebar3: '3.23'
+            rebar3: '3.25.1'
+          - otp: '28'
+            rebar3: '3.26.0'
+          - otp: '29'
+            rebar3: '3.27'
           - otp: 'master'
             rebar3: 'nightly'
     steps:

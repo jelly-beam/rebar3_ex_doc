@@ -23,7 +23,6 @@ all_post_27(OTPRelease) when OTPRelease >= 27 ->
         generate_docs_post_27,
         generate_docs_alternate_rebar3_config_format_post_27,
         generate_docs_without_extra_post_27,
-        generate_docs_with_legacy_assets_post_27,
         generate_docs_with_assets_post_27,
         generate_docs_with_current_app_set_post_27,
         generate_docs_with_bad_config_post_27,
@@ -72,9 +71,6 @@ generate_docs_without_extra_post_27(Config) ->
 
 generate_docs_overriding_output_set_in_config_post_27(Config) ->
     generate_docs_overriding_output_set_in_config([{post_27, true} | Config]).
-
-generate_docs_with_legacy_assets_post_27(Config) ->
-    generate_docs_with_assets([{legacy_assets, true}, {post_27, true} | Config]).
 
 generate_docs_with_assets_post_27(Config) ->
     generate_docs_with_assets([{post_27, true} | Config]).
@@ -141,18 +137,11 @@ generate_docs_without_extra(Config) ->
 
 generate_docs_with_assets(Config) ->
     Post27 = proplists:get_value(post_27, Config, false),
-    Assets =
-      case proplists:get_value(legacy_assets, Config, false) of
-          true -> "src";
-          false -> #{"src" => "erlang_source"}
-      end,
+    Assets = #{"src" => "erlang_source"},
     StubConfig = #{
         app_src => #{version => "0.1.0"},
         dir => data_dir(Config),
-        name =>
-            if is_map(Assets) -> "assets_map_docs";
-               true -> "assets_docs"
-            end,
+        name =>  "assets_map_docs",
         config =>
             {ex_doc,[{assets, Assets}]}
     },
