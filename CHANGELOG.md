@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [v0.3.0]
+
+- Update ex_doc to 0.40.3
+- Retire support for < OTP 27
+
 ## [v0.2.31]
 
 - Add more ex_doc config support [#120](https://github.com/jelly-beam/rebar3_ex_doc/pull/120) 
