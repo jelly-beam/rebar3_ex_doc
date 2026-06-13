@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Generating docs no longer aborts for projects using native `-moduledoc`/`-doc`
+  attributes (OTP 27+, EEP-59) when a Markdown backtick appears in an Erlang
+  `%%` comment attached to a declaration. EDoc's legacy wiki parser throws on
+  such comments ([#123](https://github.com/jelly-beam/rebar3_ex_doc/issues/123)).
+  Because `ex_doc` reads documentation directly from the EEP-48 `Docs` chunk in
+  the compiled BEAM, the EDoc step is redundant for these projects: when EDoc
+  fails and populated native docs are present in the beams, the real EDoc error
+  is now logged as a warning and doc generation continues. Note that this
+  graceful degradation applies to *any* EDoc failure for a native-docs app, not
+  only the backtick crash. Projects documented with legacy EDoc `@doc` comments
+  (no native docs in the beams) are unaffected and still fail fast on EDoc
+  errors.
+
 ## [v0.3.0]
 
 - Update ex_doc to 0.40.3
