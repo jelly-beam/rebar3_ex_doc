@@ -129,6 +129,21 @@ If you wish to generate documentation outside the context of a package you may s
 Not all `ex_doc` options are supported. This means we'll warn on unknown options, but still pass them to `ex_doc`. We try to make sure the supported options are converted to the format known by `ex_doc`.
 In case you get a warning for something that is working or would like further conversion support, open a [GitHub issue](https://github.com/starbelly/rebar3_ex_doc/issues).
 
+### Native documentation and EDoc
+
+For projects documented with native `-moduledoc`/`-doc` attributes (OTP 27+,
+EEP-59), `ex_doc` reads documentation directly from the compiled BEAM's EEP-48
+`Docs` chunk, so the intermediate EDoc step is not required. The `Docs` chunk
+is emitted by the compiler by default (it is only suppressed by the explicit
+`+no_docs` / `-compile(no_docs)` option). If EDoc fails to run — for example, a
+Markdown backtick in an Erlang `%%` comment trips EDoc's legacy wiki parser
+(see [#123](https://github.com/jelly-beam/rebar3_ex_doc/issues/123)) — and the
+compiled beams contain native docs, the plugin logs the underlying EDoc error
+and continues, generating docs from the BEAM. As usual, `ex_doc` renders
+type/spec information from `debug_info` (the rebar3 default), so keep it enabled
+for complete output. Projects that rely on legacy `@doc` comments still depend
+on EDoc and will report the error and stop, as before.
+
 ### Additional options
 
 #### Support for Mermaid
