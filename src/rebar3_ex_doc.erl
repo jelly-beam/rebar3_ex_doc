@@ -452,7 +452,7 @@ ex_doc_opts_defaults(Opts) ->
 maybe_add_opt(formatter, Opts) ->
     case proplists:get_all_values(formatter, Opts) of
         [] ->
-            ["-f", "html", "-f", "epub"];
+            ["-f", "html", "-f", "markdown", "-f", "epub"];
         [Formatter] ->
             ["-f", Formatter];
         Formatters ->
@@ -561,9 +561,9 @@ help(canonical) ->
 help(output) ->
     "Output directory for the generated docs.";
 help(formatter) ->
-    "Which formatters to use, \"html\" or \"epub\"."
+    "Which formatters to use, \"html\", \"markdown\", or \"epub\"."
     "This option can be given more than once."
-    "By default, both html and epub are generated.";
+    "By default, html, markdown and epub are generated.";
 help(language) ->
     "Identify the primary language of the documents,"
     "its value must be a valid BCP 47 language tag."
