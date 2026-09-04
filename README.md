@@ -1,12 +1,12 @@
 # rebar3_ex_doc
 
-[![Build Status](https://github.com/starbelly/rebar3_ex_doc/actions/workflows/ci.yml/badge.svg)](https://github.com/starbelly/rebar3_ex_doc/actions/workflows/ci.yml)
+[![Build Status](https://github.com/jelly-beam/rebar3_ex_doc/actions/workflows/ci.yml/badge.svg)](https://github.com/jelly-beam/rebar3_ex_doc/actions/workflows/ci.yml)
 [![Erlang/OTP Versions](https://img.shields.io/badge/erlang%2Fotp-26%7C27%7C28-blue)](http://www.erlang.org)
 [![Hex Version](https://img.shields.io/hexpm/v/rebar3_ex_doc.svg)](https://hex.pm/packages/rebar3_ex_doc)
 [![Hex Docs](https://img.shields.io/badge/hex-docs-lightgreen.svg)](https://hexdocs.pm/rebar3_ex_doc/)
 [![Total Download](https://img.shields.io/hexpm/dt/rebar3_ex_doc.svg)](https://hex.pm/packages/rebar3_ex_doc)
-[![License](https://img.shields.io/hexpm/l/rebar3_ex_doc.svg)](https://github.com/starbelly/rebar3_ex_doc/blob/main/LICENSE)
-[![Last Updated](https://img.shields.io/github/last-commit/starbelly/rebar3_ex_doc.svg)](https://github.com/starbelly/rebar3_ex_doc/commits/main)
+[![License](https://img.shields.io/hexpm/l/rebar3_ex_doc.svg)](https://github.com/jelly-beam/rebar3_ex_doc/blob/main/LICENSE)
+[![Last Updated](https://img.shields.io/github/last-commit/starbelly/rebar3_ex_doc.svg)](https://github.com/jelly-beam/rebar3_ex_doc/commits/main)
 
 `rebar3_ex_doc` is a `rebar3` plugin to generate documentation using [ex\_doc](https://github.com/elixir-lang/ex_doc). This plugin ships with `ex_doc` as an escript, thus you don't need to worry about having Elixir installed nor compiling the `ex_doc` dependencies.
 
@@ -64,8 +64,8 @@ For further customization, see the configuration for `rebar3_ex_doc`:
           {"LICENSE.md", #{title => "License"}}
     ]},
     {main, "README.md"},
-    {homepage_url, "https://github.com/starbelly/rebar3_ex_doc"},
-    {source_url, "https://github.com/starbelly/rebar3_ex_doc"},
+    {homepage_url, "https://github.com/jelly-beam/rebar3_ex_doc"},
+    {source_url, "https://github.com/jelly-beam/rebar3_ex_doc"},
     {assets, "assets"},
     {api_reference, false}
 ]}.
@@ -127,7 +127,7 @@ If you wish to generate documentation outside the context of a package you may s
 ### Supported options
 
 Not all `ex_doc` options are supported. This means we'll warn on unknown options, but still pass them to `ex_doc`. We try to make sure the supported options are converted to the format known by `ex_doc`.
-In case you get a warning for something that is working or would like further conversion support, open a [GitHub issue](https://github.com/starbelly/rebar3_ex_doc/issues).
+In case you get a warning for something that is working or would like further conversion support, open a [GitHub issue](https://github.com/jelly-beam/rebar3_ex_doc/issues).
 
 ### Additional options
 
@@ -176,7 +176,7 @@ If your project doesn't follow this convention you may opt out of it with `{pref
 
 ### Examples
 
-Check out our [examples](https://github.com/starbelly/rebar3_ex_doc/tree/main/examples) directory in this repository for working project examples.
+Check out our [examples](https://github.com/jelly-beam/rebar3_ex_doc/tree/main/examples) directory in this repository for working project examples.
 
 ### Extras
 
@@ -213,7 +213,7 @@ If you'd like to hack on this plugin, follow the steps below:
 
     ```bash
     cd _checkouts
-    git clone https://github.com/starbelly/rebar3_ex_doc
+    git clone https://github.com/jelly-beam/rebar3_ex_doc
     ```
 
 5. Get all dependencies and build the `ex_doc` console app:
