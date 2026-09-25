@@ -10,5 +10,5 @@
   {modules, []},
   {licenses, ["Apache-2.0"]},
   {include_paths, ["priv"]},
-  {links, [{"Github", "https://github.com/starbelly/rebar3_ex_doc"}]}
+  {links, [{"Github", "https://github.com/jelly-beam/rebar3_ex_doc"}]}
  ]}.

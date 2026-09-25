@@ -30,7 +30,7 @@ if [ $yn == "yes" ]; then
 
     cd _checkouts
 
-    git clone https://github.com/starbelly/rebar3_ex_doc
+    git clone https://github.com/jelly-beam/rebar3_ex_doc
 
     cd rebar3_ex_doc
     mkdir priv
