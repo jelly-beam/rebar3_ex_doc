@@ -149,7 +149,8 @@ compile(State) ->
             ?RAISE({compile, Err})
     end.
 
--spec gen_chunks(rebar_state:t(), file:filename()) -> {rebar_state:t(), rebar_app_info:t(), file:filename()}.
+-spec gen_chunks(rebar_state:t(), rebar_app_info:t()) ->
+    {rebar_state:t(), rebar_app_info:t(), file:filename()}.
 gen_chunks(State, App) ->
     OutDir = filename:join(rebar_app_info:out_dir(App), "doc"),
     ErlOpts = rebar_state:get(State, erl_opts, []),
@@ -172,8 +173,89 @@ gen_chunks(State, App) ->
         {ok, State3} ->
             {State3, App1, OutDir};
         {error, Err} ->
-            ?RAISE({gen_chunks, Err})
+            %% Issue #123: EDoc's legacy wiki parser throws on a Markdown
+            %% backtick in a `%%' comment attached to a declaration. For
+            %% projects using native EEP-59 docs (-moduledoc/-doc) the EDoc
+            %% step is vestigial: ex_doc reads the EEP-48 Docs chunk directly
+            %% from the compiled BEAM. So if the app already ships native docs,
+            %% surface the real EDoc error and continue to ex_doc instead of
+            %% aborting. Legacy @doc / undocumented apps depend on EDoc and
+            %% still abort exactly as before.
+            case has_native_docs(App) of
+                true ->
+                    rebar_api:warn(
+                        "edoc failed for '~ts' but native (-moduledoc/-doc) "
+                        "documentation was found in the compiled beams; "
+                        "continuing with ex_doc. edoc error: ~p",
+                        [rebar_app_info:name(App), Err]
+                    ),
+                    ok = filelib:ensure_path(OutDir),
+                    %% NB: we return the pristine State/App here, not the
+                    %% edoc-mutated State3/App1 of the success arm. ex_doc/3
+                    %% reads only command_parsed_args/vcs_vsn/code_paths from
+                    %% State and name/dir/ebin_dir/ex_doc opts from App, none of
+                    %% which the (skipped) edoc step mutates, so returning the
+                    %% originals is equivalent and avoids leaking edoc_opts /
+                    %% project_apps mutations into the ex_doc step.
+                    {State, App, OutDir};
+                false ->
+                    ?RAISE({gen_chunks, Err})
+            end
     end.
+
+%% @doc Returns `true' iff at least one compiled beam in the app's ebin dir
+%% carries a populated EEP-48 `Docs' chunk (native -moduledoc/-doc, EEP-59),
+%% i.e. a docs_v1 term whose module doc and/or at least one entry doc is a
+%% non-empty language map. Modules compiled without -moduledoc/-doc (and
+%% without an edoc-to-chunks pass over the same ebin) carry no Docs chunk;
+%% modules that opted out (-moduledoc false / -doc hidden) carry atom-valued
+%% docs; both correctly yield `false'. Used on edoc failure to decide whether
+%% the edoc step is vestigial and ex_doc can render from the beam alone (issue
+%% #123). Defensively returns `false' on any beam_lib/binary_to_term error so a
+%% malformed beam never masks the original edoc failure for legacy projects.
+%% Note: this is a heuristic on the presence of native docs in the beams; if
+%% maintainers prefer determinism it could be replaced by an explicit opt-in
+%% flag (see the #123 discussion).
+-spec has_native_docs(rebar_app_info:t()) -> boolean().
+has_native_docs(App) ->
+    Beams = filelib:wildcard(filename:join(rebar_app_info:ebin_dir(App), "*.beam")),
+    lists:any(fun beam_has_native_docs/1, Beams).
+
+-spec beam_has_native_docs(file:filename()) -> boolean().
+beam_has_native_docs(Beam) ->
+    try beam_lib:chunks(Beam, ["Docs"], [allow_missing_chunks]) of
+        {ok, {_Module, [{"Docs", Bin}]}} when is_binary(Bin) ->
+            docs_chunk_populated(Bin);
+        _ ->
+            false
+    catch
+        _:_ ->
+            false
+    end.
+
+-spec docs_chunk_populated(binary()) -> boolean().
+docs_chunk_populated(Bin) ->
+    try binary_to_term(Bin) of
+        {docs_v1, _Anno, _Lang, _Format, ModuleDoc, _Meta, Docs} ->
+            is_populated_doc(ModuleDoc) orelse lists:any(fun is_populated_entry/1, Docs);
+        _ ->
+            false
+    catch
+        _:_ ->
+            false
+    end.
+
+-spec is_populated_entry(term()) -> boolean().
+is_populated_entry({_KindNameArity, _Anno, _Sig, Doc, _Meta}) ->
+    is_populated_doc(Doc);
+is_populated_entry(_) ->
+    false.
+
+-spec is_populated_doc(term()) -> boolean().
+is_populated_doc(Doc) when is_map(Doc) ->
+    map_size(Doc) > 0;
+is_populated_doc(_) ->
+    false.
 
 -spec ex_doc(rebar_state:t(), rebar_app_info:t(), file:filename()) -> {ok, rebar_state:t()}.
 ex_doc(State, App, EdocOutDir) ->

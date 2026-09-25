@@ -28,7 +28,12 @@ all_post_27(OTPRelease) when OTPRelease >= 27 ->
         generate_docs_with_bad_config_post_27,
         generate_docs_with_alternate_ex_doc_post_27,
         generate_docs_with_output_set_in_config_post_27,
-        generate_docs_overriding_output_set_in_config_post_27
+        generate_docs_overriding_output_set_in_config_post_27,
+        %% The following #123 regression tests are intentionally post-27-only
+        %% (no _post_27 sibling): they exercise native -moduledoc/-doc, which
+        %% only exists on OTP >= 27.
+        generate_docs_native_docs_survive_edoc_backtick_crash,
+        generate_docs_legacy_docs_still_abort_on_edoc_backtick_crash
     ];
 all_post_27(_OTPRelease) ->
     [].
@@ -279,6 +284,71 @@ generate_docs_overriding_output_set_in_config(Config) ->
     {ok, _} = rebar3_ex_doc:do(State),
     check_docs(App, State, StubConfig).
 
+generate_docs_native_docs_survive_edoc_backtick_crash(Config) ->
+    %% Regression for #123: a native -doc project with a Markdown backtick in a
+    %% %% comment attached to a declaration makes edoc:get_doc/2 throw. Because
+    %% the app ships populated native Docs chunks in its beams, doc generation
+    %% must NOT abort: the plugin logs the edoc error and lets ex_doc render
+    %% straight from the beam. No special config required.
+    %%
+    %% Coverage note: this asserts the GRACEFUL path ({ok,_} + rendered docs).
+    %% Its sibling generate_docs_legacy_docs_still_abort_on_edoc_backtick_crash
+    %% asserts the SAME edoc crash still aborts a legacy project, which pins the
+    %% precondition that the type-attached backtick really throws under edoc. If
+    %% a future OTP stops throwing, that sibling fails loudly, so this test
+    %% cannot silently pass via the {ok,State3} edoc-success arm unnoticed.
+    StubConfig = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        name => "native_backtick_comment",
+        src_variant => backtick_comment,
+        config =>
+            {ex_doc, [
+                {source_url, <<"https://github.com/eh/eh">>},
+                {extras, [<<"README.md">>, <<"LICENSE">>]},
+                {main, <<"readme">>}
+            ]}
+    },
+    %% post_27 forced true: native -moduledoc/-doc only exists on OTP >= 27.
+    {State, App} = make_stub(true, StubConfig),
+    ok = make_readme(App),
+    ok = make_license(App),
+    {ok, _} = rebar3_ex_doc:do(State),
+    check_docs(App, State, StubConfig).
+
+generate_docs_legacy_docs_still_abort_on_edoc_backtick_crash(Config) ->
+    %% Backward-compat guard for #123: a LEGACY (@doc, no -moduledoc/-doc)
+    %% project that hits the same edoc backtick crash must STILL fail fast.
+    %% has_native_docs/1 returns false (the beam carries no populated Docs
+    %% chunk), so gen_chunks/2 re-raises ?RAISE({gen_chunks, _}) exactly as
+    %% before this fix. This locks down the has_native_docs=false -> abort
+    %% branch so a future regression that loosened native-docs detection (e.g.
+    %% treating missing_chunk or opt-out 'hidden' docs as populated) would be
+    %% caught here instead of silently downgrading a real edoc failure to a
+    %% warning for legacy projects.
+    StubConfig = #{
+        app_src => #{version => "0.1.0"},
+        dir => data_dir(Config),
+        name => "legacy_backtick_comment",
+        src_variant => legacy_backtick_comment,
+        config =>
+            {ex_doc, [
+                {source_url, <<"https://github.com/eh/eh">>},
+                {extras, [<<"README.md">>, <<"LICENSE">>]},
+                {main, <<"readme">>}
+            ]}
+    },
+    {State, App} = make_stub(true, StubConfig),
+    ok = make_readme(App),
+    ok = make_license(App),
+    %% ?RAISE wraps the reason as {error, {?MODULE, Reason}} (the ?PRV_ERROR
+    %% shape rebar3 expects from a provider), so erlang:error/1 carries that
+    %% full term. Matching it confirms the legacy abort path (?RAISE) was hit.
+    ?assertError(
+        {error, {rebar3_ex_doc, {gen_chunks, _}}},
+        rebar3_ex_doc:do(State)
+    ).
+
 format_errors(_) ->
     Err = "The app 'foo' specified was not found.",
     ?assertEqual(Err, rebar3_ex_doc:format_error({app_not_found, foo})),
@@ -496,10 +566,11 @@ init_state(Dir, Config) ->
     LibDirs = rebar_dir:lib_dirs(State),
     rebar_app_discover:do(State, LibDirs).
 
-write_src_file(Post27, Dir, #{name := Name}) ->
+write_src_file(Post27, Dir, #{name := Name} = StubConfig) ->
     Erl = filename:join([Dir, "src", Name ++ ".erl"]),
     ok = filelib:ensure_dir(Erl),
-    ok = ec_file:write(Erl, erl_src_file(Post27, Name)).
+    Variant = maps:get(src_variant, StubConfig, Post27),
+    ok = ec_file:write(Erl, erl_src_file(Variant, Name)).
 
 write_app_src_file(Dir, #{name := Name, app_src := #{version := Vsn}}) ->
     Filename = filename:join([Dir, "src", Name ++ ".app.src"]),
@@ -523,6 +594,55 @@ get_app_metadata(Name, Vsn) ->
         {links, []}
     ]}.
 
+erl_src_file(backtick_comment = _Variant, Name) ->
+    %% Native -moduledoc/-doc module with a Markdown backtick (ASCII 0x60) in a
+    %% %% comment attached to a -type declaration. This is the exact #123 repro
+    %% ("Crashes if type comment has backticks"): with {preprocess,true}
+    %% edoc:get_doc/2 throws ("`-quote ended unexpectedly at line N"). The BEAM
+    %% still carries a populated EEP-48 Docs chunk (moduledoc + foo/0 doc), so
+    %% ex_doc renders from the beam and the graceful-degradation path skips
+    %% edoc. Verified empirically on OTP 28: a backtick in a comment attached to
+    %% a *function* does NOT throw, but one attached to a *type* does.
+    io_lib:format(
+        "-module('~s').\n"
+        "-moduledoc \"\"\"\n"
+        "A module\n"
+        "\"\"\".\n"
+        "-export([foo/0]).\n"
+        "-export_type([t/0]).\n"
+        "-type s() :: integer().\n"
+        "%% a `backtick in this type comment\n"
+        "-type t() :: s().\n"
+        "-doc \"\"\"\n"
+        "foo/0 does nothing\n"
+        "\"\"\".\n"
+        "-spec foo() -> t().\n"
+        "foo() -> ok.\n",
+        [Name]
+    );
+erl_src_file(legacy_backtick_comment = _Variant, Name) ->
+    %% LEGACY (no -moduledoc/-doc) module hitting the SAME #123 edoc crash: a
+    %% Markdown backtick in a %% comment attached to a -type declaration makes
+    %% edoc:get_doc/2 throw. Unlike the native variant above, this module ships
+    %% NO populated EEP-48 Docs chunk (legacy @doc lives in comments, not in the
+    %% beam), so has_native_docs/1 returns false and gen_chunks/2 MUST still
+    %% abort via ?RAISE({gen_chunks, _}) exactly as before. This pins the
+    %% backward-compat contract: legacy projects fail fast on edoc errors, and
+    %% it also fails loudly (the abort assertion no longer holds) if a future
+    %% OTP changes edoc so the type-attached backtick stops throwing.
+    io_lib:format(
+        "%%% legacy module\n"
+        "-module('~s').\n"
+        "-export([foo/0]).\n"
+        "-export_type([t/0]).\n"
+        "-type s() :: integer().\n"
+        "%% a `backtick in this type comment\n"
+        "-type t() :: s().\n"
+        "%% @doc foo/0 does nothing\n"
+        "-spec foo() -> t().\n"
+        "foo() -> ok.\n",
+        [Name]
+    );
 erl_src_file(true = _Post27, Name) ->
     io_lib:format(
         "-module('~s').\n"
